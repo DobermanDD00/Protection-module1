@@ -1,0 +1,113 @@
+CREATE TABLE roles
+(
+    id int primary key auto_increment,
+    name varchar(256) not null unique
+);
+
+CREATE TABLE users
+(
+    id int primary key auto_increment,
+    name varchar(256) not null unique,
+    role varchar(256),
+    foreign key (role) references roles (name) on update cascade on delete set null,
+    lead varchar(256),
+    foreign key (lead) references users (name) on update cascade on delete set null,
+    sign varbinary(32) not null,
+    keyPublic varbinary(512) not null,
+    keyPrivate varbinary(512) not null,
+    salt varbinary(32) not null,
+    password varbinary(32) not null
+);
+
+CREATE TABLE statuses
+(
+    id int primary key auto_increment,
+    number int not null unique,
+    name varchar(256) not null unique
+);
+
+
+CREATE TABLE tasks
+(
+    id int primary key auto_increment,
+    name varchar(256) not null unique,
+    description text,
+    lead varchar(256),
+    foreign key (lead) references users (name) on update cascade on delete set null,
+    performer varchar(256),
+    foreign key (performer) references users (name)  on update cascade on delete set null,
+    signlead varbinary(32),
+    status varchar(256),
+    foreign key (status) references statuses (name) on update cascade on delete set null,
+    report text,
+    signperformer varbinary(32)
+);
+
+-- ___________________________________________________
+
+
+
+INSERT INTO ROLES
+(name)
+values
+    ('Работник'), ('Руководитель младшего звена'), ('Руководитель среднего звена'), ('Руководитель высшего звена'), ('Владелец');
+
+INSERT INTO STATUSES
+(number, name)
+values
+    (1, 'Отправлена на выполнение'), (2, 'Возвращена для корректировки'), (3, 'В процессе выполнения'), (4, 'Отправлено на проверку'), (5, 'Завершена'), (6, 'Возвращена на доработку');
+
+INSERT INTO USERS
+(NAME, ROLE, LEAD, SIGN, KEYPUBLIC, KEYPRIVATE, SALT, PASSWORD)
+VALUES ('Виктория', NULL , NULL, '123', '123','123','123','123'),
+       ('Владимир', NULL , NULL, '123', '123','123','123','123'),
+       ('Александр', NULL , NULL, '123', '123','123','123','123'),
+       ('Григорий', NULL , NULL, '123', '123','123','123','123'),
+       ('Роман', NULL , NULL, '123', '123','123','123','123');
+
+UPDATE USERS
+SET ROLE = 'Работник', LEAD = 'Александр'
+WHERE NAME = 'Виктория' OR NAME = 'Владимир';
+
+UPDATE USERS
+SET ROLE = 'Руководитель младшего звена', LEAD = 'Григорий'
+WHERE NAME = 'Александр';
+
+UPDATE USERS
+SET ROLE = 'Руководитель среднего звена', LEAD = 'Роман'
+WHERE NAME = 'Григорий';
+
+UPDATE USERS
+SET ROLE = 'Руководитель высшего звена'
+WHERE NAME = 'Роман';
+
+
+
+INSERT INTO TASKS
+(NAME, DESCRIPTION, lead, performer, SIGNlead, STATUS, REPORT, SIGNperformer)
+values
+    ('Починить токарный станок', 'Починить токарный станок 6Б46', null, null, '123', 'Отправлена на выполнение','', '234'),
+    ('Починить фрезерный станок', 'Починить фрезерный станок 3ГСЕ51', null, null, '123', 'Отправлена на выполнение','', '234'),
+    ('Наладить работы сборочной линии', 'Починить токарные и фрезерные станки', null, null, '123', 'Отправлена на выполнение','', '234'),
+    ('Заключить договора с заводом БелМаш', 'Встретиться с представителем БелМаш и обсудить условия', null, null, '123', 'Отправлена на выполнение','', '234'),
+    ('Продумать курс развития компании', 'Рассмотреть вопрос масштабирования компании', null, null, '123', 'Отправлена на выполнение','', '234');
+
+UPDATE TASKS
+SET lead = 'Виктория', performer = 'Александр', STATUS = 'Отправлена на выполнение'
+WHERE NAME = 'Починить токарный станок';
+
+UPDATE TASKS
+SET lead = 'Владимир', performer = 'Александр', STATUS = 'Отправлена на выполнение'
+WHERE NAME = 'Починить фрезерный станок';
+
+UPDATE TASKS
+SET lead = 'Александр', performer = 'Григорий', STATUS = 'В процессе выполнения'
+WHERE NAME = 'Наладить работы сборочной линии';
+
+UPDATE TASKS
+SET lead = 'Григорий', performer = 'Роман', STATUS = 'В процессе выполнения'
+WHERE NAME = 'Заключить договора с заводом БелМаш';
+
+UPDATE TASKS
+SET lead = 'Роман', performer = 'Роман', STATUS = 'В процессе выполнения'
+WHERE NAME = 'Продумать курс развития компании';
