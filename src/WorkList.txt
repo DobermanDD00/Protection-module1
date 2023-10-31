@@ -1,0 +1,49 @@
+На потом:
+    1. LocalDate и Date оставить только одно
+    2. Почистить код в h2Function
+    3. Разобраться какая кодировка в консоли используется в классе h2Function
+
+Протестировать:
+
+
+Исправление
+    1. Проверки или обработка ошибок при добавлении значений для уникальных полей //todo sql1
+    2. Оптимизировать код //todo optimize 1 code
+
+
+Сделать
+    1. Убрать роли из таблицы users
+    5. Спросить Олега про исключения
+
+
+java -cp lib\h2-2.1.214.jar org.h2.tools.Server -webPort 8081
+
+
+Для ID AUTO INCR
+
+SELECT MAX (ID) + 1 FROM TABLE1     => NULL OR INT
+
+
+
+
+
+
+SALT HASH переделать в PASSWORD HASH
+
+
+Это решение больше свидетельствует о твоем уме, чем о том, что ты прочитал учебник.
+
+
+https://www.baeldung.com/java-aes-encryption-decryption
+https://mkyong.com/java/java-aes-encryption-and-decryption/
+https://www.javatpoint.com/aes-256-encryption-in-java
+
+
+https://docs.oracle.com/javase/8/docs/api/javax/crypto/Cipher.html
+
+
+public static IvParameterSpec generateIv() {
+    byte[] iv = new byte[16];
+    new SecureRandom().nextBytes(iv);
+    return new IvParameterSpec(iv);
+}
