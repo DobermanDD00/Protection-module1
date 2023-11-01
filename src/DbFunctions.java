@@ -21,8 +21,10 @@ public class DbFunctions {
 
 
     public static void main(String[] args) {
+        initializeDb();
 
-//        boolean bool = addUserDb("login10", "masha2","a", "a", "8798", "13879", "role1 role2 role3", "wporj");
+    }
+    public static void initializeDb(){
         String str1 = "drop all objects;";
         updateDb(str1);
         String str2 = """
@@ -44,7 +46,7 @@ public class DbFunctions {
                     keyPublic varbinary(512) not null,
                     keyPrivate varbinary(512) not null,
                     salt varbinary(32) not null,
-                    password varbinary(32) not null
+                    hashSaltPassword varbinary(32) not null
                 );
 
                 CREATE TABLE statuses
@@ -83,7 +85,7 @@ public class DbFunctions {
                     (1, 'Отправлена на выполнение'), (2, 'Возвращена для корректировки'), (3, 'В процессе выполнения'), (4, 'Отправлено на проверку'), (5, 'Завершена'), (6, 'Возвращена на доработку');
 
                 INSERT INTO USERS
-                (NAME, ROLE, LEAD, SIGN, KEYPUBLIC, KEYPRIVATE, SALT, PASSWORD)
+                (NAME, ROLE, LEAD, SIGN, KEYPUBLIC, KEYPRIVATE, SALT, hashSaltPassword)
                 VALUES ('Виктория', NULL , NULL, '123', '123','123','123','123'),
                        ('Владимир', NULL , NULL, '123', '123','123','123','123'),
                        ('Александр', NULL , NULL, '123', '123','123','123','123'),
@@ -137,19 +139,6 @@ public class DbFunctions {
                 SET lead = 'Роман', performer = 'Роман', STATUS = 'В процессе выполнения'
                 WHERE NAME = 'Продумать курс развития компании';""";
         updateDb(str3);
-
-//        createBasicInformation();
-//        boolean bool = addReportDb("report9", "text", "", "user1", "user2 user3 user4","role1 role2 role3", "user7 user9");
-//        LocalDateTime deadline = LocalDateTime.of(2023,5,21,19,7,7);
-//        boolean bool = addTaskDb("Подготовить годовой отчет3", "Быстро!", "pasha", "masha misha", "role1 role3",  "user1 user2", "rsfe", deadline, "do task");
-
-//        boolean bool = authentication("login8", "13879");
-//        createRolesUser(1, "role1 role2");
-//        System.out.println(bool);
-
-
-//        cipherAES();
-//        cipherRSA();
     }
 
     public static boolean updateDb(String sqlQuery)//todo Спросить Олега как правильно обрабатывать исключения и возвращать информацию о результате работы ф-ии
@@ -214,7 +203,7 @@ public class DbFunctions {
     }
     public static void getUserNameById(int id)// Пример для запросов к БД
     {
-        String sqlQuery = "SELECT * from USERS\n" +
+        String sqlQuery = "SELECT NAME from USERS\n" +
                 "where ID = " + id + " LIMIT 1;";
 
         try {
@@ -244,6 +233,40 @@ public class DbFunctions {
             System.out.println("Исключение, соединение с БД не закрыто");
             throw new RuntimeException(e);
         }
+    }
+    public static int getIdByName(String tableName, String name)// Пример для запросов к БД
+    {
+        String sqlQuery = "SELECT ID from "+tableName+"\n" +
+                "where NAME = '" + name + "' LIMIT 1;";
+        int id = -1;
+
+        try {
+            Class.forName("org.h2.Driver");
+            con = DriverManager.getConnection(url, user, password);
+            stat = con.createStatement();
+
+            rs = stat.executeQuery(sqlQuery);
+
+            if (rs.next()) {
+                id = rs.getInt("ID");
+            }
+
+
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println("Исключение, данные из БД не получены");
+            throw new RuntimeException(e);
+        }
+
+        try {
+            rs.close();
+            stat.close();
+            con.close();
+
+        } catch (SQLException e) {
+            System.out.println("Исключение, соединение с БД не закрыто");
+            throw new RuntimeException(e);
+        }
+        return  id;
     }
 
 //    public static boolean addUserDb(String login, String firstName, String lastName, String middleName,
@@ -316,27 +339,23 @@ public class DbFunctions {
 //
 //        return ret;
 //    }
-    public static boolean addNewUser(String name, String role, String lead, String password) {
+    public static boolean addNewUser(String name, String role, String lead, byte[] sign, byte[] keyPublic, byte[] keyPrivate, byte[] salt, byte[] hashSaltPassword) {
         boolean ret = true;
 
-        byte[] salt = Security.generateSalt(32);
-        byte[] hashSaltPass = Security.generateHashSha256(salt, password.getBytes(StandardCharsets.UTF_8));
-
-
         String sqlQuery = "INSERT INTO USERS\n" +
-                "(NAME, ROLE, LEAD, SIGN, KEYPUBLIC, KEYPRIVATE, SALT, PASSWORD)\n" +
-                "VALUES ('"+name+"', '"+role+"', '"+lead+"', '123', '123','123'," +ChangeFormat.byteToHexStr(salt)+","+ChangeFormat.byteToHexStr(hashSaltPass)+")";
+                "(NAME, ROLE, LEAD, SIGN, KEYPUBLIC, KEYPRIVATE, SALT, hashSaltPassword)\n" +
+                "VALUES ('"+name+"', '"+role+"', '"+lead+"',"+ChangeFormat.byteToHexStr(sign)+","+ChangeFormat.byteToHexStr(keyPublic)+","+ChangeFormat.byteToHexStr(keyPrivate)+"," +ChangeFormat.byteToHexStr(salt)+","+ChangeFormat.byteToHexStr(hashSaltPassword)+")";
 
         ret = updateDb(sqlQuery);
         return ret;
     }
 
-    public static boolean addNewTask(String name, String description, String lead, String performer){
+    public static boolean addNewTask(String name, String description, String lead, String performer, byte[] signLead, String status, String report, byte[] signPerformer){
         boolean ret = true;
 
 
         String sqlQuery = "INSERT INTO TASKS (NAME, DESCRIPTION, LEAD, PERFORMER, SIGNLEAD, STATUS, REPORT, SIGNPERFORMER) \n" +
-                "VALUES ( '"+name+"', '"+description+"', '"+lead+"', '"+performer+"', '123', 'Отправлена на выполнение', '', '456'  );";
+                "VALUES ( '"+name+"', '"+description+"', '"+lead+"', '"+performer+"', '"+signLead+"','"+status+"', '"+report+"', '"+signPerformer+"');";
 
 
         ret = updateDb(sqlQuery);
