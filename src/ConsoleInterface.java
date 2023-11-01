@@ -65,7 +65,7 @@ public class ConsoleInterface {
 //        String lead = "Роман";
 //        String password = "12345";
 
-        return new User(name, role, lead, password);
+        return User.createNewUser(name, role, lead, password);
     }
 
     public static Task createNewTask() {
@@ -108,9 +108,29 @@ public class ConsoleInterface {
 //        String performer = "Александр";
 
 
-        return new Task(name, description, lead, performer);
+        return Task.createNewTask(name, description, lead, performer);
 
 
+    }
+
+    public static User logIn(){
+        String name, password;
+        Scanner in = new Scanner(System.in);
+        System.out.println("Вход в аккаунт:");
+
+        while (true) {
+            System.out.println("Введите логин:");
+            name = in.nextLine();
+            System.out.println("Введите пароль:");
+            password = in.nextLine();
+            if (true)//***************
+                System.out.println("Ошибка, неправильный логин или пароль");
+            else
+                break;
+        }
+
+
+        return null;//**********
     }
 
     public static int addReportToTask() {

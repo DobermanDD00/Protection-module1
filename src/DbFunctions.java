@@ -377,43 +377,51 @@ public class DbFunctions {
 
         return ret;
     }
-    public static boolean isExistInDb (String tableName, String columnName, int field){
-        boolean ret = false;
-
-        String sqlQuery = "SELECT ID from "+tableName+"\n" +
-                "where "+columnName+" = " + field + " LIMIT 1;";
-
-
-        try {
-            Class.forName("org.h2.Driver");
-            con = DriverManager.getConnection(url, user, password);
-            stat = con.createStatement();
-
-            rs = stat.executeQuery(sqlQuery);
-
-            if (rs.next())
-                ret = true;
-            else
-                ret = false;
-
-
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("Исключение, данные из БД не получены");
-            throw new RuntimeException(e);
-        }
-
-        try {
-            rs.close();
-            stat.close();
-            con.close();
-
-        } catch (SQLException e) {
-            System.out.println("Исключение, соединение с БД не закрыто");
-            throw new RuntimeException(e);
-        }
-
-        return ret;
-    }
+//    public static User getUser (String name){
+//        try {
+//            Class.forName("org.h2.Driver");
+//            con = DriverManager.getConnection(url, user, password);
+//            stat = con.createStatement();
+//
+//            rs = stat.executeQuery("SELECT SALT, SALT_HASH FROM USERS WHERE LOGIN = '" + login + "' LIMIT 1;");
+//
+//            if (rs.next()) {
+//                byte[] salt = rs.getBytes("SALT");
+//                byte[] saltHash = rs.getBytes("SALT_HASH");
+//
+//                try {
+//
+//                    MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+//                    messageDigest.update(salt);
+//                    messageDigest.update(pass.getBytes("UTF-8"));
+//                    byte[] saltHashCurrent = messageDigest.digest();
+//
+//                    ret = Arrays.equals(saltHashCurrent, saltHash);
+//
+//
+//                } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
+//                    throw new RuntimeException(e);
+//                }
+//
+//            }
+//            rs.close();
+//        } catch (ClassNotFoundException | SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//
+//        try {
+//            stat.close();
+//            con.close();
+//
+//        } catch (SQLException e) {
+//            System.out.println("Исключение соединение с БД не закрыто");
+//            throw new RuntimeException(e);
+//        }
+//
+//        return ret; //todo ret
+//
+//    }
     public static boolean addNewUser(String name, String role, String lead, byte[] sign, byte[] keyPublic, byte[] keyPrivate, byte[] salt, byte[] hashSaltPassword) {
         boolean ret = true;
 

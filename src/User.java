@@ -11,28 +11,38 @@ public class User {
     private byte[] salt;
     private byte[] hashSaltPassword;
 
-    public User(String name, String role, String lead, String password) {//todo Сделать генерацию ключей для подписей, сделать обработку ошибок
-        boolean ret = true;
+    public User(int id, String name, String role, String lead, byte[] sign, byte[] keyPublic, byte[] keyPrivate, byte[] salt, byte[] hashSaltPassword) {//todo Сделать генерацию ключей для подписей, сделать обработку ошибок
+        this.id = id;
         this.name = name;
         this.role = role;
         this.lead = lead;
 
-        this.sign = ChangeFormat.stringToBytes("123");//********************
-        this.keyPublic = ChangeFormat.stringToBytes("123");
-        this.keyPrivate = ChangeFormat.stringToBytes("123");
+        this.sign = sign;
+        this.keyPublic = keyPublic;
+        this.keyPrivate = keyPrivate;
 
-        this.salt = Security.generateSalt(32);
-        this.hashSaltPassword = Security.generateHashSha256(this.salt, password.getBytes(StandardCharsets.UTF_8));
+        this.salt = salt;
+        this.hashSaltPassword = hashSaltPassword;
 
-        boolean userAddedInDb = DbFunctions.addNewUser(this.name, this.role, this.lead, this.sign, this.keyPublic, this.keyPrivate, this.salt, this.hashSaltPassword);
+    }
+    public static User createNewUser (String name, String role, String lead, String password){
+
+        byte[] sign = ChangeFormat.stringToBytes("123");//********************
+        byte[] keyPublic = ChangeFormat.stringToBytes("123");
+        byte[] keyPrivate = ChangeFormat.stringToBytes("123");
+
+        byte[] salt = Security.generateSalt(32);
+        byte[] hashSaltPassword = Security.generateHashSha256(salt, password.getBytes(StandardCharsets.UTF_8));
+
+        boolean userAddedInDb = DbFunctions.addNewUser(name, role, lead, sign, keyPublic, keyPrivate, salt, hashSaltPassword);
         if (userAddedInDb)
             System.out.println("Пользователь успешно добавлен");
         else
             System.out.println("Ошибка, пользователь не добавлен");
 
-        this.id = DbFunctions.getIdByName("USERS", name);
+        int id = DbFunctions.getIdByName("USERS", name);
 
-
+        return new User(id, name, role, lead, sign, keyPublic, keyPrivate, salt, hashSaltPassword);
     }
 
     public static void main(String[] args) {
