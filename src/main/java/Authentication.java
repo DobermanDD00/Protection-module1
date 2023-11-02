@@ -1,10 +1,4 @@
-
-
-import java.io.File;
-import java.io.FileNotFoundException;
-
 import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
 
 public class Authentication {
 
@@ -14,7 +8,7 @@ public class Authentication {
     }
 
     public static User logIn(String name, String password){
-            User userDb = DbFunctions.gerUser(name);
+            User userDb = DbFunctions.getUser(name);
 
             if (userDb == null)
                 return null;
@@ -33,11 +27,6 @@ public class Authentication {
         else
             return null;
 
-
-
-
-
     }
-
 
 }

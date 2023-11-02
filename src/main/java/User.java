@@ -1,4 +1,3 @@
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,25 +33,7 @@ public class User {
 //        this.hashSaltPassword = hashSaltPassword;
 //
 //    }
-    public static User createNewUser (String name, String role, String lead, String password){
 
-        byte[] sign = Security.generateRandomBytes(32);//********************
-        byte[] keyPublic = Security.generateRandomBytes(512);
-        byte[] keyPrivate = Security.generateRandomBytes(512);
-
-        byte[] salt = Security.generateRandomBytes(32);
-        byte[] hashSaltPassword = Security.generateHashSha256(salt, password.getBytes(StandardCharsets.UTF_8));
-
-        boolean userAddedInDb = DbFunctions.addNewUser(name, role, lead, sign, keyPublic, keyPrivate, salt, hashSaltPassword);
-        if (userAddedInDb)
-            System.out.println("Пользователь успешно добавлен");
-        else
-            System.out.println("Ошибка, пользователь не добавлен");
-
-        int id = DbFunctions.getIdByName("USERS", name);
-
-        return new User(id, name, role, lead, sign, keyPublic, keyPrivate, salt, hashSaltPassword);
-    }
 
     public static void main(String[] args) {
         ConsoleInterface.createNewUser();

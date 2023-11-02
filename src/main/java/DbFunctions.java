@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 
 public class DbFunctions {
@@ -84,12 +85,12 @@ public class DbFunctions {
 
         // Добавление пользователей
         byte[] salt;
-        addNewUser("Александр", "Администратор", "Александр", Security.generateRandomBytes(32), Security.generateRandomBytes(512), Security.generateRandomBytes(512), salt = Security.generateRandomBytes(32), Security.generateHashSha256(salt, "12345".getBytes()));
-        addNewUser("Роман", "Руководитель высшего звена", "Роман", Security.generateRandomBytes(32), Security.generateRandomBytes(512), Security.generateRandomBytes(512), salt = Security.generateRandomBytes(32), Security.generateHashSha256(salt, "12345".getBytes()));
-        addNewUser("Григорий", "Руководитель среднего звена", "Роман", Security.generateRandomBytes(32), Security.generateRandomBytes(512), Security.generateRandomBytes(512), salt = Security.generateRandomBytes(32), Security.generateHashSha256(salt, "12345".getBytes()));
-        addNewUser("Николай", "Руководитель младшего звена", "Григорий", Security.generateRandomBytes(32), Security.generateRandomBytes(512), Security.generateRandomBytes(512), salt = Security.generateRandomBytes(32), Security.generateHashSha256(salt, "12345".getBytes()));
-        addNewUser("Виктория", "Работник", "Николай", Security.generateRandomBytes(32), Security.generateRandomBytes(512), Security.generateRandomBytes(512), salt = Security.generateRandomBytes(32), Security.generateHashSha256(salt, "12345".getBytes()));
-        addNewUser("Владимир", "Работник", "Николай", Security.generateRandomBytes(32), Security.generateRandomBytes(512), Security.generateRandomBytes(512), salt = Security.generateRandomBytes(32), Security.generateHashSha256(salt, "12345".getBytes()));
+        addNewUser("Александр", "Администратор", "Александр", "12345");
+        addNewUser("Роман", "Руководитель высшего звена", "Роман", "12345");
+        addNewUser("Григорий", "Руководитель среднего звена", "Роман", "12345");
+        addNewUser("Николай", "Руководитель младшего звена", "Григорий", "12345");
+        addNewUser("Виктория", "Работник", "Николай", "12345");
+        addNewUser("Владимир", "Работник", "Николай", "12345");
 
         // Добавление задач
         addNewTask("Починить токарный станок", "Починить токарный станок 6Б46", "Николай", "Виктория", Security.generateRandomBytes(32), "Отправлена на выполнение", "", Security.generateRandomBytes(32));
@@ -230,7 +231,8 @@ public class DbFunctions {
         return id;
     }
 
-    public static User gerUser(String name) {//todo Протестить
+    public static User getUser(String name)
+    {//todo Протестить
         User userDb = null;
         try {
             Class.forName("org.h2.Driver");
@@ -277,14 +279,62 @@ public class DbFunctions {
 
     }
 
-    public static List<Task> getReceivedTasks(String performer) {
+    public static List<Task> getTasks(String columnName, String data)
+    {
         List<Task> tasksDb = null;
         try {
             Class.forName("org.h2.Driver");
             con = DriverManager.getConnection(url, user, password);
             stat = con.createStatement();
 
-            rs = stat.executeQuery("SELECT * FROM TASKS WHERE PERFORMER = '" + performer + "'");
+            rs = stat.executeQuery("SELECT * FROM TASKS WHERE '"+columnName+"' = '" + data + "'");
+
+            while (rs.next()) {
+                if (tasksDb == null)
+                    tasksDb = new ArrayList<>();
+
+                tasksDb.add(new Task(
+                        rs.getInt("ID"),
+                        rs.getString("NAME"),
+                        rs.getString("DESCRIPTION"),
+                        rs.getString("LEAD"),
+                        rs.getString("PERFORMER"),
+                        rs.getBytes("SIGNLEAD"),
+                        rs.getString("STATUS"),
+                        rs.getString("REPORT"),
+                        rs.getBytes("SIGNPERFORMER")
+                ));
+
+
+            }
+            rs.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        try {
+            stat.close();
+            con.close();
+
+        } catch (SQLException e) {
+            System.out.println("Исключение соединение с БД не закрыто");
+            throw new RuntimeException(e);
+        }
+
+        return tasksDb;
+
+
+    }
+    public static List<Task> getTasks(String sqlQuery)
+    {
+        List<Task> tasksDb = null;
+        try {
+            Class.forName("org.h2.Driver");
+            con = DriverManager.getConnection(url, user, password);
+            stat = con.createStatement();
+
+            rs = stat.executeQuery(sqlQuery);
 
             while (rs.next()) {
                 if (tasksDb == null)
@@ -324,11 +374,12 @@ public class DbFunctions {
 
     }
 
-    public static boolean isExistInDb(String tableName, String columnName, String field) {
+    public static boolean isExistInDb(String tableName, String columnName, String data)
+    {
         boolean ret = false;
 
         String sqlQuery = "SELECT ID from " + tableName + "\n" +
-                "where " + columnName + " = '" + field + "' LIMIT 1;";
+                "where " + columnName + " = '" + data + "' LIMIT 1;";
 
 
         try {
@@ -362,18 +413,58 @@ public class DbFunctions {
         return ret;
     }
 
-    public static boolean addNewUser(String name, String role, String lead, byte[] sign, byte[] keyPublic, byte[] keyPrivate, byte[] salt, byte[] hashSaltPassword) {
-        boolean ret = true;
+    public static Task accessToTask (String columnName, String data, String user)
+    {
+       List<Task> listTasks = getTasks("SELECT * FROM TASKS\n" +
+               "WHERE "+columnName+" = '"+data+"' AND (LEAD = '"+user+"' OR PERFORMER = '"+user+"')LIMIT 1;\n");
+        if (listTasks == null)
+            return null;
+
+
+        ListIterator<Task> iter = listTasks.listIterator();
+        if (iter.hasNext()) {
+            return iter.next();
+
+        }
+        return null;
+
+
+    }
+
+    public static User addNewUser(String name, String role, String lead, String password)
+    {
 
         String sqlQuery = "INSERT INTO USERS\n" +
                 "(NAME, ROLE, LEAD, SIGN, KEYPUBLIC, KEYPRIVATE, SALT, hashSaltPassword)\n" +
-                "VALUES ('" + name + "', '" + role + "', '" + lead + "'," + ChangeFormat.byteToHexStr(sign) + "," + ChangeFormat.byteToHexStr(keyPublic) + "," + ChangeFormat.byteToHexStr(keyPrivate) + "," + ChangeFormat.byteToHexStr(salt) + "," + ChangeFormat.byteToHexStr(hashSaltPassword) + ")";
+                "VALUES ('"+name+"','','','','','','','');";
+        updateDb(sqlQuery); //todo Как здесь делать проверки? Раньше ф-ия возвращала t or f и это уже возвращала addNewUser
 
-        ret = updateDb(sqlQuery);
-        return ret;
+        User user = getUser(name);
+
+        updateUser(user, name, role, lead, password);
+
+
+        return user;
+    }
+    public static void updateUser(User user, String name, String role, String lead, String password){
+        user.setName(name);
+        user.setRole(role);
+        user.setLead(lead);
+        Security.setGenerateKeys(user);
+        user.setSalt(Security.generateRandomBytes(32));
+        user.setHashSaltPassword(Security.generateHashSha256(user.getSalt(), password.getBytes()));
+        Security.setGenerateSign(user);
+
+        String sqlQuery = "INSERT INTO USERS\n" +
+                "(NAME, ROLE, LEAD, SIGN, KEYPUBLIC, KEYPRIVATE, SALT, hashSaltPassword)\n" +
+                "VALUES ('"+user.getName()+"','"+user.getRole()+"','"+user.getLead()+"','"+user.getSign()+"','"+user.getKeyPublic()+"','"+user.getKeyPrivate()+"','"+user.getSalt()+"','"+user.getHashSaltPassword()+"');";
+
+        updateDb(sqlQuery);
+
     }
 
-    public static boolean addNewTask(String name, String description, String lead, String performer, byte[] signLead, String status, String report, byte[] signPerformer) {
+    public static boolean addNewTask(String name, String description, String lead, String performer, byte[] signLead, String status, String report, byte[] signPerformer)
+    {
         boolean ret = true;
 
 
@@ -386,7 +477,9 @@ public class DbFunctions {
 
     }
 
-    public static boolean addReportToTask(String name, String report) {
+
+    public static boolean addReportToTask(String name, String report)
+    {
         boolean ret = true;
 
         String oldReport = null;
@@ -430,6 +523,14 @@ public class DbFunctions {
 
         ret = updateDb(sqlQuery);
         return ret;
+    }
+
+    public static void editTask(Task task){
+
+        task = Security.updateSignTask(task);
+        String sqlQuery = "UPDATE TASKS\n" +
+                "SET NAME = '"+task.getName()+"', DESCRIPTION = '"+task.getDescription()+"', LEAD = '"+task.getLead()+"', PERFORMER = '"+task.getPerformer()+"', SIGNLEAD = '"+task.getSignLead()+"', STATUS = '"+task.getStatus()+"', REPORT = '"+task.getReport()+"', SIGNPERFORMER = '"+task.getSignPerformer()+"'\n" +
+                "WHERE ID = '"+task.getId()+"'\n";
     }
 
 

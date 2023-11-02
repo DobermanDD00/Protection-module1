@@ -1,5 +1,3 @@
-
-
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.UnsupportedEncodingException;
@@ -108,4 +106,24 @@ public class Security {
 
         return saltHash;
     }
+
+    public static void setGenerateSign(User user){//todo Сделать нормальную генерацию
+
+        user.setSign(generateRandomBytes(32));//******************
+
+    }
+    public static void setGenerateKeys(User user){//todo Сделать нормальную генерацию
+
+        user.setKeyPrivate(generateRandomBytes(512));//******************
+        user.setKeyPublic(generateRandomBytes(512));//******************
+
+    }
+    public static Task updateSignTask(Task task){
+
+        task.setSignLead(Security.generateRandomBytes(32));
+        task.setSignPerformer(Security.generateRandomBytes(32));
+        return null;//*********************
+
+    }
+
 }

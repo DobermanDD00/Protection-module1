@@ -1,6 +1,3 @@
-
-
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Scanner;
@@ -20,7 +17,7 @@ public class ConsoleInterface {
             user1 = Authentication.logIn(name, password);
             if (user1 == null) {
                 System.out.println("Ошибка, неправильный логин или пароль");
-            }else{
+            } else {
                 System.out.println("Добро пожаловать " + user1.getName());
                 break;
             }
@@ -51,6 +48,7 @@ public class ConsoleInterface {
             }
         }
     }
+
     public static int taskMenu() {
         System.out.println("Меню задач");
         while (true) {
@@ -78,53 +76,80 @@ public class ConsoleInterface {
     }
 
 
-    public static void viewReceivedTasks(List<Task> listTasks){
-        System.out.println("Список полученных задач:");
+    public static void viewTasks(List<Task> listTasks) {
         if (listTasks == null) {
             System.out.println("Задачи отсутствуют");
             return;
         }
         Task tempTask;
         ListIterator<Task> iter = listTasks.listIterator();
-        while (iter.hasNext()){
+        while (iter.hasNext()) {
             tempTask = iter.next();
 
-            System.out.println("    "+tempTask.getId()+ " - "+ tempTask.getName());
+            System.out.println("    " + tempTask.getId() + " - " + tempTask.getName());
             System.out.println("Статус: " + tempTask.getStatus());
             System.out.println("Руководитель: " + tempTask.getLead());
             System.out.println(tempTask.getDescription());
-            System.out.println("История отчетов: " + tempTask.getReport()+"\n");
+            System.out.println("История отчетов: " + tempTask.getReport() + "\n");
         }
 
     }
 
-    //    public static int RRRcreateNewUserInDb(){
-//        int ret = 0;
-//
-//        System.out.println("Создание нового пользователя");
-//        System.out.println("Введите имя:");
-//        Scanner in = new Scanner(System.in);
-//        String name = in.nextLine();
-//        System.out.println("Введите должность:");
-//        String role = in.nextLine();
-//        System.out.println("Введите руководителя:");
-//        String lead = in.nextLine();
-//        System.out.println("Введите новый пароль:");
-//        String password = in.nextLine();
-//
-//
-//
-//        boolean userAdded = DbFunctions.addNewUser(name,role,lead,password);
-//
-//        if (userAdded) {
-//            System.out.println("Пользователь успешно добавлен");
-//        }
-//        else{
-//                System.out.println("Ошибка, пользователь не добавлен");
-//                ret = 1;
-//        }
-//        return ret;
-//    }
+    public static Task selectTask(User user) {
+        Task task;
+        while (true) {
+            System.out.println("Выберете задачу:");
+            System.out.println("Для выбора  введите число перед названием задачи, 0 - Выйти в меню задач");
+            Scanner in = new Scanner(System.in);
+            String choice = in.nextLine();
+            if (choice == "0")
+                return null;
+            if ((task = DbFunctions.accessToTask("ID", Integer.toString(ChangeFormat.strToInt(choice)), user.getName())) == null)
+                System.out.println("Ошибка, введите другие данные");
+            else
+                return task;
+
+
+
+        }
+
+    }
+
+    public static void editTask(Task task){
+        while (true) {
+            System.out.println("Выберете действие:");
+            System.out.println("0 - Вернуться к выбору задачи.");
+            System.out.println("1 - Изменить название.");
+            System.out.println("2 - Изменить описание.");
+            System.out.println("3 - Сменить руководителя.");
+            System.out.println("4 - Сменить исполнителя.");
+            System.out.println("5 - Сменить статус.");
+            System.out.println("6 - Удалить задачу.");
+            Scanner in = new Scanner(System.in);
+            String choice = in.nextLine();
+            switch (choice) {
+                case "0":
+                    return;
+                case "1":
+                    return ;
+                case "2":
+                    return ;
+                case "3":
+                    return ;
+                case "4":
+                    return ;
+                case "5":
+                    return ;
+                case "6":
+                    return ;
+
+                default:
+                    System.out.println("Ошибка, введите другие данные");
+            }
+        }
+
+    }
+
     public static User createNewUser() {//
         String name, role, lead, password;
         Scanner in = new Scanner(System.in);
@@ -162,8 +187,9 @@ public class ConsoleInterface {
 //        String lead = "Роман";
 //        String password = "12345";
 
-        return User.createNewUser(name, role, lead, password);
+        return DbFunctions.addNewUser(name, role, lead, password);
     }
+
 
     public static Task createNewTask() {
         String name, description, lead, performer;

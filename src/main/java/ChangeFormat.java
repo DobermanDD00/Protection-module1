@@ -1,5 +1,3 @@
-
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HexFormat;
 
@@ -22,8 +20,34 @@ public class ChangeFormat {
         return "X'" + hex.formatHex(bytes) + "\'";
 
     }
+    public static int strToInt(String str){
+        long i;
+        if (str.matches("\\d{1,10}")){
+                try{
+                    // именно здесь String преобразуется в int
+                    i = Long.parseLong(str.trim());
+
+                    // выведем на экран значение после конвертации
+                    System.out.println("int i = " + i);
+                } catch (NumberFormatException e) {
+                    System.out.println("Ошибка в приведении строки в число");
+                    throw new RuntimeException(e);
+                }
+
+                if (i > 0 && i <= 2147483647)
+                    return (int) i;
+                else
+                    return -1;
+
+            }
+            else {
+                return -1;
+            }
+
+    }
 
     public static void main(String[] args) {
+
 //        int i = 1451343333;
 //        System.out.println(i);
 //        byte[] bytes = intToBytes(i);
