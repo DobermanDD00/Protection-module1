@@ -1,6 +1,103 @@
+
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Scanner;
 
 public class ConsoleInterface {
+    public static User logIn() {
+        String name, password;
+        Scanner in = new Scanner(System.in);
+        System.out.println("Вход в аккаунт:");
+
+        User user1 = null;//*************8
+        while (true) {
+            System.out.println("Введите логин:");
+            name = in.nextLine();
+            System.out.println("Введите пароль:");
+            password = in.nextLine();
+            user1 = Authentication.logIn(name, password);
+            if (user1 == null) {
+                System.out.println("Ошибка, неправильный логин или пароль");
+            }else{
+                System.out.println("Добро пожаловать " + user1.getName());
+                break;
+            }
+        }
+        return user1;
+
+    }
+
+    public static int mainMenu() {
+        System.out.println("Главное меню");
+        while (true) {
+            System.out.println("Выберете действие:");
+            System.out.println("0 - Выйти из программы.");
+            System.out.println("1 - Сменить пользователя.");
+            System.out.println("2 - Перейти в меню задач.");
+            Scanner in = new Scanner(System.in);
+            String choice = in.nextLine();
+            switch (choice) {
+                case "0":
+                    return 0;
+                case "1":
+                    return 1;
+                case "2":
+                    return 2;
+
+                default:
+                    System.out.println("Ошибка, введите другие данные");
+            }
+        }
+    }
+    public static int taskMenu() {
+        System.out.println("Меню задач");
+        while (true) {
+            System.out.println("Выберете действие:");
+            System.out.println("0 - Выйти в главное меню.");
+            System.out.println("1 - Просмотр полученных задач.");
+            System.out.println("2 - Просмотр назначенных задач.");
+            System.out.println("3 - Создать новую задачу.");
+            Scanner in = new Scanner(System.in);
+            String choice = in.nextLine();
+            switch (choice) {
+                case "0":
+                    return 0;
+                case "1":
+                    return 1;
+                case "2":
+                    return 2;
+                case "3":
+                    return 3;
+
+                default:
+                    System.out.println("Ошибка, введите другие данные");
+            }
+        }
+    }
+
+
+    public static void viewReceivedTasks(List<Task> listTasks){
+        System.out.println("Список полученных задач:");
+        if (listTasks == null) {
+            System.out.println("Задачи отсутствуют");
+            return;
+        }
+        Task tempTask;
+        ListIterator<Task> iter = listTasks.listIterator();
+        while (iter.hasNext()){
+            tempTask = iter.next();
+
+            System.out.println("    "+tempTask.getId()+ " - "+ tempTask.getName());
+            System.out.println("Статус: " + tempTask.getStatus());
+            System.out.println("Руководитель: " + tempTask.getLead());
+            System.out.println(tempTask.getDescription());
+            System.out.println("История отчетов: " + tempTask.getReport()+"\n");
+        }
+
+    }
+
     //    public static int RRRcreateNewUserInDb(){
 //        int ret = 0;
 //
@@ -113,27 +210,8 @@ public class ConsoleInterface {
 
     }
 
-    public static User logIn(){
-        String name, password;
-        Scanner in = new Scanner(System.in);
-        System.out.println("Вход в аккаунт:");
 
-        while (true) {
-            System.out.println("Введите логин:");
-            name = in.nextLine();
-            System.out.println("Введите пароль:");
-            password = in.nextLine();
-            if (true)//***************
-                System.out.println("Ошибка, неправильный логин или пароль");
-            else
-                break;
-        }
-
-
-        return null;//**********
-    }
-
-    public static int addReportToTask() {
+    public static int addReportToTask() {//todo исправить с учетом авторизации
         int ret = 0;
         System.out.println("Создание создание отчета к задаче");
         System.out.println("Введите название задачи");
@@ -161,6 +239,6 @@ public class ConsoleInterface {
     }
 
     public static void main(String[] args) {
-        createNewTask();
+        mainMenu();
     }
 }

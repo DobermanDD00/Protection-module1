@@ -1,3 +1,10 @@
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
 public class Task {
 
     private int id;
@@ -10,25 +17,13 @@ public class Task {
     private String report;
     private byte[] signPerformer;
 
-    public Task(int id, String name, String description, String lead, String performer, byte[] signLead, String status, String report, byte[] signPerformer) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.lead = lead;
-        this.performer = performer;
 
-        this.signLead = signLead;
-        this.status = status;
-        this.report = report;
-        this.signPerformer = signPerformer;
-
-    }
     public static Task createNewTask (String name, String description, String lead, String performer) {//todo Сделать  подписи, сделать обработку ошибок
 
-        byte[] signLead = ChangeFormat.stringToBytes("123");//********************
+        byte[] signLead = Security.generateRandomBytes(32);//********************
         String status = "Отправлена на выполнение";
         String report = "";
-        byte[] signPerformer = ChangeFormat.stringToBytes("123");//********************
+        byte[] signPerformer = Security.generateRandomBytes(32);//********************
 
 
         boolean taskAddedInDb = DbFunctions.addNewTask(name, description, lead, performer, signLead, status, report, signPerformer);

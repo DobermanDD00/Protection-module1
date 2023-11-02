@@ -1,4 +1,13 @@
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.nio.charset.StandardCharsets;
+
+@Getter
+@Setter
+@AllArgsConstructor
 
 public class User {
     private int id;
@@ -11,27 +20,27 @@ public class User {
     private byte[] salt;
     private byte[] hashSaltPassword;
 
-    public User(int id, String name, String role, String lead, byte[] sign, byte[] keyPublic, byte[] keyPrivate, byte[] salt, byte[] hashSaltPassword) {//todo Сделать генерацию ключей для подписей, сделать обработку ошибок
-        this.id = id;
-        this.name = name;
-        this.role = role;
-        this.lead = lead;
-
-        this.sign = sign;
-        this.keyPublic = keyPublic;
-        this.keyPrivate = keyPrivate;
-
-        this.salt = salt;
-        this.hashSaltPassword = hashSaltPassword;
-
-    }
+//    public User(int id, String name, String role, String lead, byte[] sign, byte[] keyPublic, byte[] keyPrivate, byte[] salt, byte[] hashSaltPassword) {//todo Сделать генерацию ключей для подписей, сделать обработку ошибок
+//        this.id = id;
+//        this.name = name;
+//        this.role = role;
+//        this.lead = lead;
+//
+//        this.sign = sign;
+//        this.keyPublic = keyPublic;
+//        this.keyPrivate = keyPrivate;
+//
+//        this.salt = salt;
+//        this.hashSaltPassword = hashSaltPassword;
+//
+//    }
     public static User createNewUser (String name, String role, String lead, String password){
 
-        byte[] sign = ChangeFormat.stringToBytes("123");//********************
-        byte[] keyPublic = ChangeFormat.stringToBytes("123");
-        byte[] keyPrivate = ChangeFormat.stringToBytes("123");
+        byte[] sign = Security.generateRandomBytes(32);//********************
+        byte[] keyPublic = Security.generateRandomBytes(512);
+        byte[] keyPrivate = Security.generateRandomBytes(512);
 
-        byte[] salt = Security.generateSalt(32);
+        byte[] salt = Security.generateRandomBytes(32);
         byte[] hashSaltPassword = Security.generateHashSha256(salt, password.getBytes(StandardCharsets.UTF_8));
 
         boolean userAddedInDb = DbFunctions.addNewUser(name, role, lead, sign, keyPublic, keyPrivate, salt, hashSaltPassword);

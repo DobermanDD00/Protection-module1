@@ -1,7 +1,8 @@
+
+
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.*;
 
 public class Security {
@@ -75,7 +76,7 @@ public class Security {
 
     }
 
-    public static byte[] generateSalt(int numBytes){
+    public static byte[] generateRandomBytes(int numBytes){
         byte[] salt;
         try {// Генерация соли
             salt = new byte[numBytes];
