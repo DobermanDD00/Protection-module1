@@ -231,7 +231,7 @@ public class ConsoleInterface {
 //        String performer = "Александр";
 
 
-        return Task.createNewTask(name, description, lead, performer);
+        return DbFunctions.addNewTask(name, description, lead, performer);
 
 
     }
@@ -252,14 +252,7 @@ public class ConsoleInterface {
 //        String performer = "Александр";
 
 
-        boolean reportAddedToTask = DbFunctions.addReportToTask(name, report);
 
-        if (reportAddedToTask) {
-            System.out.println("Отчет успешно добавлен");
-        } else {
-            System.out.println("Ошибка, отчет не добавлен");
-            ret = 1;
-        }
         return ret;
 
     }

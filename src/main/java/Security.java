@@ -107,15 +107,25 @@ public class Security {
         return saltHash;
     }
 
-    public static void setGenerateSign(User user){//todo Сделать нормальную генерацию
-
+    public static void setGenerateSign(User user)//todo Сделать нормальную генерацию
+    {
         user.setSign(generateRandomBytes(32));//******************
 
     }
-    public static void setGenerateKeys(User user){//todo Сделать нормальную генерацию
-
+    public static void setGenerateKeys(User user)//todo Сделать нормальную генерацию
+    {
         user.setKeyPrivate(generateRandomBytes(512));//******************
         user.setKeyPublic(generateRandomBytes(512));//******************
+
+    }
+    public static void setGeneratedSignPerformer(Task task)//todo Сделать нормальную генерацию
+    {
+        task.setSignPerformer(generateRandomBytes(32));
+
+    }
+    public static void setGeneratedSignLead(Task task)//todo Сделать нормальную генерацию
+    {
+        task.setSignLead(generateRandomBytes(32));
 
     }
     public static Task updateSignTask(Task task){
