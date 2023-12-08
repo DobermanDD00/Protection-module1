@@ -1,3 +1,5 @@
+package model;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,9 +38,7 @@ public class Task {
 //        return new Task(id, name, description, lead, performer, signLead, status, report, signPerformer);
 //
 //    }
-    public static void main(String[] args) {
-        ConsoleInterface.createNewTask();
-    }
+    public static void main(String[] args) { }
 
 
 }

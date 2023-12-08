@@ -1,3 +1,5 @@
+package model;
+
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.UnsupportedEncodingException;

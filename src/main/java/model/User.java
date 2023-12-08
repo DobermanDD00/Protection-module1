@@ -1,8 +1,8 @@
+package model;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.nio.charset.StandardCharsets;
 
 @Getter
 @Setter
@@ -36,7 +36,7 @@ public class User {
 
 
     public static void main(String[] args) {
-        ConsoleInterface.createNewUser();
+
     }
 
 }

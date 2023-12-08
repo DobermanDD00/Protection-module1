@@ -1,3 +1,5 @@
+package model;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +38,7 @@ public class DbFunctions {
                     id int primary key auto_increment,
                     name varchar(256) not null unique,
                     role varchar(256),
-                    foreign key (role) references roles (name) on update cascade on delete set null,
                     lead varchar(256),
-                    foreign key (lead) references users (name) on update cascade on delete set null,
                     sign varbinary(32) not null,
                     keyPublic varbinary(512) not null,
                     keyPrivate varbinary(512) not null,
@@ -60,12 +60,9 @@ public class DbFunctions {
                     name varchar(256) not null unique,
                     description text,
                     lead varchar(256),
-                    foreign key (lead) references users (name) on update cascade on delete set null,
                     performer varchar(256),
-                    foreign key (performer) references users (name)  on update cascade on delete set null,
                     signlead varbinary(32),
                     status varchar(256),
-                    foreign key (status) references statuses (name) on update cascade on delete set null,
                     report text,
                     signperformer varbinary(32)
                 );""";
@@ -286,7 +283,7 @@ public class DbFunctions {
             con = DriverManager.getConnection(url, user, password);
             stat = con.createStatement();
 
-            rs = stat.executeQuery("SELECT * FROM TASK WHERE NAME = '" + name + "' LIMIT 1;");
+            rs = stat.executeQuery("SELECT * FROM TASKS WHERE NAME = '" + name + "' LIMIT 1;");
 
             if (rs.next()) {
 
@@ -327,49 +324,7 @@ public class DbFunctions {
     }
 
     public static List<Task> getTasks(String columnName, String data) {
-        List<Task> tasksDb = null;
-        try {
-            Class.forName("org.h2.Driver");
-            con = DriverManager.getConnection(url, user, password);
-            stat = con.createStatement();
-
-            rs = stat.executeQuery("SELECT * FROM TASKS WHERE '" + columnName + "' = '" + data + "'");
-
-            while (rs.next()) {
-                if (tasksDb == null)
-                    tasksDb = new ArrayList<>();
-
-                tasksDb.add(new Task(
-                        rs.getInt("ID"),
-                        rs.getString("NAME"),
-                        rs.getString("DESCRIPTION"),
-                        rs.getString("LEAD"),
-                        rs.getString("PERFORMER"),
-                        rs.getBytes("SIGNLEAD"),
-                        rs.getString("STATUS"),
-                        rs.getString("REPORT"),
-                        rs.getBytes("SIGNPERFORMER")
-                ));
-
-
-            }
-            rs.close();
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        try {
-            stat.close();
-            con.close();
-
-        } catch (SQLException e) {
-            System.out.println("Исключение соединение с БД не закрыто");
-            throw new RuntimeException(e);
-        }
-
-        return tasksDb;
-
+        return getTasks("SELECT * FROM TASKS WHERE '" + columnName + "' = '" + data + "'");
 
     }
 
@@ -458,7 +413,7 @@ public class DbFunctions {
         return ret;
     }
 
-    public static Task accessToTask(String columnName, String data, String user) {
+    public static Task accessToTask(String columnName, String data, String user) {// TODO добавить иерархию
         List<Task> listTasks = getTasks("SELECT * FROM TASKS\n" +
                 "WHERE " + columnName + " = '" + data + "' AND (LEAD = '" + user + "' OR PERFORMER = '" + user + "')LIMIT 1;\n");
         if (listTasks == null)

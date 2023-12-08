@@ -1,3 +1,5 @@
+package model;
+
 import java.nio.ByteBuffer;
 import java.util.HexFormat;
 
@@ -28,7 +30,7 @@ public class ChangeFormat {
                     i = Long.parseLong(str.trim());
 
                     // выведем на экран значение после конвертации
-                    System.out.println("int i = " + i);
+                    System.out.println("int i = " + i);//***********************
                 } catch (NumberFormatException e) {
                     System.out.println("Ошибка в приведении строки в число");
                     throw new RuntimeException(e);

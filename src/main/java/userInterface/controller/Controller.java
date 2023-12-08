@@ -1,8 +1,12 @@
-import java.util.List;
-import java.util.ListIterator;
+package userInterface.controller;
+
+import model.Facade;
+import model.User;
+import model.Task;
+
 import java.util.Scanner;
 
-public class ConsoleInterface {
+public class Controller {
     public static User logIn() {
         String name, password;
         Scanner in = new Scanner(System.in);
@@ -14,7 +18,7 @@ public class ConsoleInterface {
             name = in.nextLine();
             System.out.println("Введите пароль:");
             password = in.nextLine();
-            user1 = Authentication.logIn(name, password);
+            user1 = Facade.logIn(name, password);
             if (user1 == null) {
                 System.out.println("Ошибка, неправильный логин или пароль");
             } else {
@@ -75,26 +79,6 @@ public class ConsoleInterface {
         }
     }
 
-
-    public static void viewTasks(List<Task> listTasks) {
-        if (listTasks == null) {
-            System.out.println("Задачи отсутствуют");
-            return;
-        }
-        Task tempTask;
-        ListIterator<Task> iter = listTasks.listIterator();
-        while (iter.hasNext()) {
-            tempTask = iter.next();
-
-            System.out.println("    " + tempTask.getId() + " - " + tempTask.getName());
-            System.out.println("Статус: " + tempTask.getStatus());
-            System.out.println("Руководитель: " + tempTask.getLead());
-            System.out.println(tempTask.getDescription());
-            System.out.println("История отчетов: " + tempTask.getReport() + "\n");
-        }
-
-    }
-
     public static Task selectTask(User user) {
         Task task;
         while (true) {
@@ -102,20 +86,27 @@ public class ConsoleInterface {
             System.out.println("Для выбора  введите число перед названием задачи, 0 - Выйти в меню задач");
             Scanner in = new Scanner(System.in);
             String choice = in.nextLine();
-            if (choice == "0")
+            if (choice.equals("0")) {
+                System.out.println("aaaaaaaaaaaaaaaaaaaaaaaa");//******************************8
                 return null;
-            if ((task = DbFunctions.accessToTask("ID", Integer.toString(ChangeFormat.strToInt(choice)), user.getName())) == null)
+            }
+            else{
+                System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");//************************
+
+
+            }
+            if ((task = Facade.FcdAccessToTask("ID", Integer.toString(Facade.strToInt(choice)), user.getName())) == null)
                 System.out.println("Ошибка, введите другие данные");
             else
                 return task;
-
 
 
         }
 
     }
 
-    public static void editTask(Task task){
+    public static void editTask(Task task)//todo
+    {
         while (true) {
             System.out.println("Выберете действие:");
             System.out.println("0 - Вернуться к выбору задачи.");
@@ -131,17 +122,17 @@ public class ConsoleInterface {
                 case "0":
                     return;
                 case "1":
-                    return ;
+                    return;
                 case "2":
-                    return ;
+                    return;
                 case "3":
-                    return ;
+                    return;
                 case "4":
-                    return ;
+                    return;
                 case "5":
-                    return ;
+                    return;
                 case "6":
-                    return ;
+                    return;
 
                 default:
                     System.out.println("Ошибка, введите другие данные");
@@ -157,7 +148,7 @@ public class ConsoleInterface {
         while (true) {
             System.out.println("Введите имя:");
             name = in.nextLine();
-            if (DbFunctions.isExistInDb("USERS", "NAME", name) || name.equals(""))
+            if (Facade.isExistInDb("USERS", "NAME", name) || name.equals(""))
                 System.out.println("Ошибка, введите другие данные");
             else
                 break;
@@ -166,7 +157,7 @@ public class ConsoleInterface {
         while (true) {
             System.out.println("Введите должность:");
             role = in.nextLine();
-            if (!DbFunctions.isExistInDb("ROLES", "NAME", role))
+            if (!Facade.isExistInDb("ROLES", "NAME", role))
                 System.out.println("Ошибка, введите другие данные");
             else
                 break;
@@ -174,7 +165,7 @@ public class ConsoleInterface {
         while (true) {
             System.out.println("Введите руководителя:");
             lead = in.nextLine();
-            if (!DbFunctions.isExistInDb("USERS", "NAME", lead))
+            if (!Facade.isExistInDb("USERS", "NAME", lead))
                 System.out.println("Ошибка, введите другие данные");
             else
                 break;
@@ -187,9 +178,8 @@ public class ConsoleInterface {
 //        String lead = "Роман";
 //        String password = "12345";
 
-        return DbFunctions.addNewUser(name, role, lead, password);
+        return Facade.addNewUser(name, role, lead, password);
     }
-
 
     public static Task createNewTask() {
         String name, description, lead, performer;
@@ -199,7 +189,7 @@ public class ConsoleInterface {
         while (true) {
             System.out.println("Введите название");
             name = in.nextLine();
-            if (DbFunctions.isExistInDb("TASKS", "NAME", name) || name.equals(""))
+            if (Facade.isExistInDb("TASKS", "NAME", name) || name.equals(""))
                 System.out.println("Ошибка, введите другие данные");
             else
                 break;
@@ -211,7 +201,7 @@ public class ConsoleInterface {
         while (true) {
             System.out.println("Введите руководителя");
             lead = in.nextLine();
-            if (!DbFunctions.isExistInDb("USERS", "NAME", lead))
+            if (!Facade.isExistInDb("USERS", "NAME", lead))
                 System.out.println("Ошибка, введите другие данные");
             else
                 break;
@@ -219,7 +209,7 @@ public class ConsoleInterface {
         while (true) {
             System.out.println("Введите исполнителя");
             performer = in.nextLine();
-            if (!DbFunctions.isExistInDb("USERS", "NAME", performer))
+            if (!Facade.isExistInDb("USERS", "NAME", performer))
                 System.out.println("Ошибка, введите другие данные");
             else
                 break;
@@ -231,7 +221,7 @@ public class ConsoleInterface {
 //        String performer = "Александр";
 
 
-        return DbFunctions.addNewTask(name, description, lead, performer);
+        return Facade.addNewTask(name, description, lead, performer);
 
 
     }
@@ -252,12 +242,8 @@ public class ConsoleInterface {
 //        String performer = "Александр";
 
 
-
         return ret;
 
     }
 
-    public static void main(String[] args) {
-        mainMenu();
-    }
 }
