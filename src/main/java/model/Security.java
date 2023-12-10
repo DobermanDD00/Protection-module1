@@ -2,47 +2,59 @@ package model;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 
 public class Security {
-    public static void cipherAES() {
+    public static void main(String[] args) {
+        cipherRSA();
+    }
+
+
+
+
+    public static byte[] cipherAes(byte[] data, SecretKey key, int mode) {
+        //mod = Cipher.DECRYPT_MODE
+        //mod = Cipher.ENCRYPT_MODE
+        if (data == null) return null;
         try {
+            IvParameterSpec iv = new IvParameterSpec(new byte[16]);
             Cipher encrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            Cipher decrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
-
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-            SecureRandom secureRandom = new SecureRandom();
-            keyGenerator.init(256, secureRandom);
-            Key secretKey = keyGenerator.generateKey();
-
-            SecureRandom rnd = new SecureRandom();
-            IvParameterSpec iv = new IvParameterSpec(rnd.generateSeed(16));
-
-            encrypt.init(Cipher.ENCRYPT_MODE, secretKey, iv);
-            decrypt.init(Cipher.DECRYPT_MODE, secretKey, iv);
-
-            byte[] plainText = "abcdefghijklmnopqrstuvwxyz".getBytes("UTF-8");
-            System.out.println(new String(plainText, "UTF-8"));
-
-            byte[] cipherText = encrypt.doFinal(plainText);
-            System.out.println(new String(cipherText, "UTF-8"));
-
-            byte[] decryptText = decrypt.doFinal(cipherText);
-            System.out.println(new String(decryptText, "UTF-8"));
-
-
-//            new String(bytes, UTF8_CHARSET)
-
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
-                 UnsupportedEncodingException | IllegalBlockSizeException | BadPaddingException |
-                 InvalidAlgorithmParameterException e) {
+            encrypt.init(mode, key, iv);
+            return encrypt.doFinal(data);
+        } catch (NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException |
+                 InvalidKeyException | InvalidAlgorithmParameterException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static SecretKey generatedAesKey() {
+        try {
+            return KeyGenerator.getInstance("AES").generateKey();
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
 
-
+    }
+    public static byte[] encodedAnyKey(Key key) {
+        return key.getEncoded();
     }
 
+    public static SecretKey decodedKeyAes(byte[] bytesOfKey) {
+        return new SecretKeySpec(bytesOfKey, 0, bytesOfKey.length, "AES");
+    }
+
+    public static KeyPair generatedRsaKeys(){
+        KeyPairGenerator keyPairGenerator = null;
+        try {
+            keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        keyPairGenerator.initialize(4096);
+        return keyPairGenerator.generateKeyPair();
+    }
     public static void cipherRSA() {
 
         try {
@@ -56,35 +68,42 @@ public class Security {
             Cipher cipher = Cipher.getInstance("RSA");
 
 
-            byte[] plainText = ("abcdefghijklmnopqrstuvwxyk").getBytes("UTF-8");
-            System.out.println(new String(plainText, "UTF-8"));
+            byte[] plainText = ("abcdefghijklmnopqrstuvwxyk").getBytes(StandardCharsets.UTF_8);
+            System.out.println(new String(plainText, StandardCharsets.UTF_8));
 
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             byte[] cipherText = cipher.doFinal(plainText);
-            System.out.println(new String(cipherText, "UTF-8"));
+            System.out.println(new String(cipherText, StandardCharsets.UTF_8));
 
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             byte[] encryptText = cipher.doFinal(cipherText);
-            System.out.println(new String(encryptText, "UTF-8"));
+            System.out.println(new String(encryptText, StandardCharsets.UTF_8));
 
 
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException |
-                 BadPaddingException | UnsupportedEncodingException e) {
+                 BadPaddingException e) {
             throw new RuntimeException(e);
         }
 
 
     }
 
+
+
+
+
+
+
+
+
     public static byte[] generateRandomBytes(int numBytes){
         byte[] salt;
         try {// Генерация соли
             salt = new byte[numBytes];
             SecureRandom randByte = new SecureRandom(SecureRandom.getSeed(numBytes));
-            randByte.getInstanceStrong().nextBytes(salt);
+            SecureRandom.getInstanceStrong().nextBytes(salt);
         } catch (NoSuchAlgorithmException e) {
             System.out.println("Исключение, соль не сгенерирована");
-            salt = null;
             throw new RuntimeException(e);
         }
         return salt;
@@ -102,35 +121,15 @@ public class Security {
 
         } catch (NoSuchAlgorithmException e) {
             System.out.println("Исключение, хеш не сгенерирован");
-            saltHash = null;
             throw new RuntimeException(e);
         }
 
         return saltHash;
     }
 
-    public static void setGenerateKeys(User user)//todo Сделать нормальную генерацию
-    {
-        user.setKeyPrivate(generateRandomBytes(512));//******************
-        user.setKeyPublic(generateRandomBytes(512));//******************
 
-    }
-    public static void setGeneratedSignPerformer(Task task)//todo Сделать нормальную генерацию
-    {
-        task.setSignPerformer(generateRandomBytes(32));
 
-    }
-    public static void setGeneratedSignLead(Task task)//todo Сделать нормальную генерацию
-    {
-        task.setSignLead(generateRandomBytes(32));
 
-    }
-    public static Task updateSignTask(Task task){
 
-        task.setSignLead(Security.generateRandomBytes(32));
-        task.setSignPerformer(Security.generateRandomBytes(32));
-        return null;//*********************
-
-    }
 
 }
