@@ -1,3 +1,56 @@
+String str1 = "drop all objects;";
+        updateDb(str1);
+        String str2 = """
+                CREATE TABLE roles
+                (
+                    id int primary key auto_increment,
+                    name varchar(256) not null unique
+                );
+
+                CREATE TABLE users
+                (
+                    id int primary key auto_increment,
+                    name varchar(256) not null unique,
+                    idRole int,
+                    idLead int,
+                    keyPublic varbinary(512) not null
+                );
+
+                CREATE TABLE statuses
+                (
+                    id int primary key auto_increment,
+                    name varchar(256) not null unique
+                );
+
+
+                CREATE TABLE tasks
+                (
+                    id int primary key auto_increment,
+                    name varchar(256) not null unique,
+                    description varbinary(max),
+                    idLead int,
+                    idPerformer int,
+                    signlead varbinary(32),
+                    status int,
+                    report varbinary(max),
+                    signperformer varbinary(32)
+                );""";
+        updateDb(str2);
+        String str3 = """
+                INSERT INTO ROLES
+                (name)
+                values
+                    ('Работник'), ('Руководитель младшего звена'), ('Руководитель среднего звена'), ('Руководитель высшего звена'), ('Владелец'), ('Администратор');
+
+                INSERT INTO STATUSES
+                (name)
+                values
+                    ( 'Отправлена на выполнение'), ('Возвращена для корректировки'), ('В процессе выполнения'), ('Отправлено на проверку'), ('Завершена'), ('Возвращена на доработку'), ('Прочее');""";
+        updateDb(str3);
+
+
+
+_________________________________________________________
 CREATE TABLE roles
 (
     id int primary key auto_increment,

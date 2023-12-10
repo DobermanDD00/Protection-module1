@@ -109,11 +109,6 @@ public class Security {
         return saltHash;
     }
 
-    public static void setGenerateSign(User user)//todo Сделать нормальную генерацию
-    {
-        user.setSign(generateRandomBytes(32));//******************
-
-    }
     public static void setGenerateKeys(User user)//todo Сделать нормальную генерацию
     {
         user.setKeyPrivate(generateRandomBytes(512));//******************

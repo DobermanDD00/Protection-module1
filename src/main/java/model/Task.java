@@ -4,41 +4,32 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Scanner;
+
 @Getter
 @Setter
 @AllArgsConstructor
+
+
 public class Task {
 
     private int id;
     private String name;
     private String description;
-    private String lead;
-    private String performer;
+    private int idLead;
+    private int idPerformer;
     private byte[] signLead;
-    private String status;
+    private int idStatus;
     private String report;
     private byte[] signPerformer;
 
 
-//    public static Task createNewTask (String name, String description, String lead, String performer) {//todo Сделать  подписи, сделать обработку ошибок
-//
-//        byte[] signLead = Security.generateRandomBytes(32);//********************
-//        String status = "Отправлена на выполнение";
-//        String report = "";
-//        byte[] signPerformer = Security.generateRandomBytes(32);//********************
-//
-//
-//        boolean taskAddedInDb = DbFunctions.addNewTask(name, description, lead, performer, signLead, status, report, signPerformer);
-//        if (taskAddedInDb)
-//            System.out.println("Задача успешно добавлена");
-//        else
-//            System.out.println("Ошибка, задача не добавлена");
-//
-//        int id = DbFunctions.getIdByName("TASKS", name);
-//        return new Task(id, name, description, lead, performer, signLead, status, report, signPerformer);
-//
-//    }
-    public static void main(String[] args) { }
-
+    public static void main(String[] args) {
+        Task task = new Task(1, "f", "5", 55, 34, null, 333, "fdj", null);
+        System.out.println("ddddddddddddddddddddddddddddddddd");
+        System.out.println(task.getName());
+        Scanner in = new Scanner(System.in);
+        String choice = in.nextLine();
+    }
 
 }
