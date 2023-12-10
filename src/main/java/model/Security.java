@@ -3,13 +3,18 @@ package model;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+
 import java.security.*;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 
 public class Security {
     public static void main(String[] args) {
-        cipherRSA();
+
     }
 
 
@@ -45,8 +50,38 @@ public class Security {
         return new SecretKeySpec(bytesOfKey, 0, bytesOfKey.length, "AES");
     }
 
+
+
+    public static byte[] cipherRSAEncrypt(byte[] data, Key key) {
+        //mod = Cipher.DECRYPT_MODE
+        //mod = Cipher.ENCRYPT_MODE
+        try {
+
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return cipher.doFinal(data);
+
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException |
+                 BadPaddingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static byte[] cipherRSADecrypt(byte[] data, PrivateKey key) {
+        //mod = Cipher.DECRYPT_MODE
+        //mod = Cipher.ENCRYPT_MODE
+        try {
+
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            return cipher.doFinal(data);
+
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException |
+                 BadPaddingException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static KeyPair generatedRsaKeys(){
-        KeyPairGenerator keyPairGenerator = null;
+        KeyPairGenerator keyPairGenerator;
         try {
             keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         } catch (NoSuchAlgorithmException e) {
@@ -55,38 +90,47 @@ public class Security {
         keyPairGenerator.initialize(4096);
         return keyPairGenerator.generateKeyPair();
     }
-    public static void cipherRSA() {
-
+    public static RSAPublicKey decodedKeyPublicRsa(byte[] bytesOfKey) {
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(4096);
+            X509EncodedKeySpec spec1 = new X509EncodedKeySpec(bytesOfKey);
+            KeyFactory kf1 = KeyFactory.getInstance("RSA");
+            RSAPublicKey pubKey = (RSAPublicKey) kf1.generatePublic(spec1);
+            return pubKey;
 
-            KeyPair keyPair = keyPairGenerator.generateKeyPair();
-            PublicKey publicKey = keyPair.getPublic();
-            PrivateKey privateKey = keyPair.getPrivate();
-
-            Cipher cipher = Cipher.getInstance("RSA");
-
-
-            byte[] plainText = ("abcdefghijklmnopqrstuvwxyk").getBytes(StandardCharsets.UTF_8);
-            System.out.println(new String(plainText, StandardCharsets.UTF_8));
-
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            byte[] cipherText = cipher.doFinal(plainText);
-            System.out.println(new String(cipherText, StandardCharsets.UTF_8));
-
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] encryptText = cipher.doFinal(cipherText);
-            System.out.println(new String(encryptText, StandardCharsets.UTF_8));
-
-
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException |
-                 BadPaddingException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new RuntimeException(e);
         }
+    }
+    public static RSAPrivateKey decodedKeyPrivateRsa(byte[] bytesOfKey) {
+        try {
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytesOfKey);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            RSAPrivateKey privKey = (RSAPrivateKey) kf.generatePrivate(spec);
+            return  privKey;
 
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public static boolean isCorrectPairKeys(byte[] bytesKeyPublic, byte[] bytesKeyPrivate){
+        if(bytesKeyPublic == null || bytesKeyPrivate == null)
+            return false;
+        byte[] plainText = generateRandomBytes(100);
+
+        RSAPublicKey keyPub = decodedKeyPublicRsa(bytesKeyPublic);
+        byte[] encryptedText = cipherRSAEncrypt(plainText, keyPub);
+        RSAPrivateKey keyPri = decodedKeyPrivateRsa(bytesKeyPrivate);
+        byte[] decryptedText = cipherRSADecrypt(encryptedText, keyPri);
+
+
+        return Arrays.equals(plainText, decryptedText);
 
     }
+
+
+
 
 
 

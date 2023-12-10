@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.security.KeyPair;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,10 +26,24 @@ public class User {
         byte[] ss2 = "fdf".getBytes();
 
 
-        User user1 = new User(33, "dff", 33, 3, ss1, null);
-        User user2 = new User(33, "dff", 33, 3, ss2, null);
+        User user1 = new User(33, "dff", 33, 3, null, null);
+        User user2 = new User(33, "dff", 33, 3, null, null);
         System.out.println(user1.equals(user2));
 
+    }
+    public static void createNewUser(User user)
+    {
+        KeyPair keyPair = Security.generatedRsaKeys();
+        user.setKeyPublic(Security.encodedAnyKey(keyPair.getPublic()));
+        user.setKeyPrivate(Security.encodedAnyKey(keyPair.getPrivate()));
+
+        user.setId(DbFunctions.getNewIdUser());
+        DbFunctions.addNewUser(user);
+
+    }
+    public static void saveUserPrivateKey(User user)
+    {
+        FileFunctions.writeFile(user.getKeyPrivate(), user.getName()+".txt");
     }
 
 }

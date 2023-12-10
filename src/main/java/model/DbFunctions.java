@@ -43,7 +43,7 @@ public class DbFunctions {
                     name varchar(256) not null unique,
                     idRole int,
                     idLead int,
-                    keyPublic varbinary(512)
+                    keyPublic varbinary(600)
                 );
 
                 CREATE TABLE statuses
@@ -80,12 +80,12 @@ public class DbFunctions {
 
         // Добавление пользователей
 
-        addNewUser(new User(1, "Александр", 6, 1, Security.generateRandomBytes(512), null));
-        addNewUser(new User(2, "Роман", 4, 1, Security.generateRandomBytes(512), null));
-        addNewUser(new User(3, "Григорий", 3, 2, Security.generateRandomBytes(512), null));
-        addNewUser(new User(4, "Николай", 2, 3, Security.generateRandomBytes(512), null));
-        addNewUser(new User(5, "Виктория", 1, 4, Security.generateRandomBytes(512), null));
-        addNewUser(new User(6, "Владимир", 1, 4, Security.generateRandomBytes(512), null));
+//        addNewUser(new User(1, "Александр", 6, 1, Security.generateRandomBytes(512), null));
+//        addNewUser(new User(2, "Роман", 4, 1, Security.generateRandomBytes(512), null));
+//        addNewUser(new User(3, "Григорий", 3, 2, Security.generateRandomBytes(512), null));
+//        addNewUser(new User(4, "Николай", 2, 3, Security.generateRandomBytes(512), null));
+//        addNewUser(new User(5, "Виктория", 1, 4, Security.generateRandomBytes(512), null));
+//        addNewUser(new User(6, "Владимир", 1, 4, Security.generateRandomBytes(512), null));
 
 //         Добавление задач
 //        addNewTask("Починить токарный станок", "Починить токарный станок 6Б46", "Николай", "Виктория");
@@ -120,7 +120,7 @@ public class DbFunctions {
         updateDb(sqlQuery);
     }
 
-    public static User getUser(int id)    //todo Протестить
+    public static User getUser(int id)
     {
         User user = null;
         try {
@@ -164,7 +164,50 @@ public class DbFunctions {
 
 
     }
+    public static User getUser(String name)
+    {
+        User user = null;
+        try {
+            Class.forName("org.h2.Driver");
+            con = DriverManager.getConnection(url, DbFunctions.user, password);
+            stat = con.createStatement();
 
+            rs = stat.executeQuery("SELECT * FROM USERS WHERE NAME = '" + name + "' LIMIT 1;");
+
+            if (rs.next()) {
+
+                user = new User(
+                        rs.getInt("ID"),
+                        rs.getString("NAME"),
+                        rs.getInt("idROLE"),
+                        rs.getInt("idLEAD"),
+                        rs.getBytes("KEYPUBLIC"),
+                        null
+                );
+
+
+            } else {
+                return null;
+            }
+            rs.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        try {
+            stat.close();
+            con.close();
+
+        } catch (SQLException e) {
+            System.out.println("Исключение соединение с БД не закрыто");
+            throw new RuntimeException(e);
+        }
+
+        return user;
+
+
+    }
 
     public static int getFieldInt(String tableName, String columnForFind, String dataForFind, String columnForResult)
     {
@@ -235,7 +278,10 @@ public class DbFunctions {
         return field;
     }
 
-
+    public static int getNewIdUser()
+    {
+        return getNewId("Users");
+    }
     public static int getNewId(String tableName)// Пример для запросов к БД
     {
         String sqlQuery = "SELECT ID from " + tableName + "\n" +
