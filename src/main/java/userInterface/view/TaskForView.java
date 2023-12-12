@@ -16,7 +16,6 @@ import java.util.ListIterator;
 
 
 public class TaskForView {
-
     private int id;
     private String name;
     private String description;
@@ -35,15 +34,15 @@ public class TaskForView {
             return;
         }
         TaskForView tempTask;
-        ListIterator<TaskForView> iter = listTasks.listIterator();
-        while (iter.hasNext()) {
-            tempTask = iter.next();
+        for (TaskForView listTask : listTasks) {
+            tempTask = listTask;
 
             System.out.println("    " + tempTask.getId() + " - " + tempTask.getName());
             System.out.println("Статус: " + tempTask.getStatus());
             System.out.println("Руководитель: " + tempTask.getLead());
+            System.out.println("Исполнитель: " + tempTask.getPerformer());
             System.out.println("Описание: " + tempTask.getDescription());
-            System.out.println("История отчетов: " + tempTask.getReport() + "\n");
+            System.out.println("История отчетов:\n__________\n" + tempTask.getReport() + "\n__________\n");
         }
 
     }

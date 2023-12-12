@@ -1,8 +1,13 @@
 package userInterface.controller;
 
+import model.DbFunctions.DbFunctions;
+import model.Status;
 import model.Task;
+import model.User;
+import userInterface.view.TaskForView;
 
 
+import java.time.LocalDate;
 import java.util.Scanner;
 
 public class Controller {
@@ -11,10 +16,10 @@ public class Controller {
         Scanner in = new Scanner(System.in);
         System.out.println("Вход в аккаунт:");
 
-            System.out.println("Введите логин:");
-            currentLogIn.setName(in.nextLine());
-            System.out.println("Введите название или путь файла с приватным ключем:");
-            currentLogIn.setFile(in.nextLine());
+        System.out.println("Введите логин:");
+        currentLogIn.setName(in.nextLine());
+        System.out.println("Введите название или путь файла с приватным ключем:");
+        currentLogIn.setFile(in.nextLine());
         return currentLogIn;
 
     }
@@ -67,6 +72,47 @@ public class Controller {
             }
         }
     }
+
+    public static Task createNewTask() {
+        String name, description, lead, performer;
+        Scanner in = new Scanner(System.in);
+        System.out.println("Создание новой задачи");
+
+        Task task = new Task();
+
+        System.out.println("Введите название:");
+        name = in.nextLine();
+        task.setName(name);
+
+        System.out.println("Введите описание:");
+        description = in.nextLine();
+        task.setDescription(description);
+
+        while (true) {
+            System.out.println("Введите руководителя:");
+            lead = in.nextLine();
+            if (DbFunctions.isExistInDb("Users", "name", lead)) {
+                task.setIdLead(DbFunctions.getUser(lead).getId());
+                break;
+            }else {
+                System.out.println("Отсутствует введенный пользователь");
+            }
+        }
+        while (true) {
+            System.out.println("Введите исполнителя:");
+            performer = in.nextLine();
+            if (DbFunctions.isExistInDb("Users", "name", performer)){
+                task.setIdPerformer(DbFunctions.getUser(performer).getId());
+                break;
+            }else {
+                System.out.println("Отсутствует введенный пользователь");
+            }
+
+        }
+        task.initializeReport();
+        return task;
+    }
+
 
 //    public static Task selectTask(User user) {
 //        Task task;
@@ -170,53 +216,9 @@ public class Controller {
 //        return Facade.addNewUser(name, role, lead, password);
 //    }
 //
-//    public static Task createNewTask() {
-//        String name, description, lead, performer;
-//        Scanner in = new Scanner(System.in);
-//        System.out.println("Создание новой задачи");
-//
-//        while (true) {
-//            System.out.println("Введите название");
-//            name = in.nextLine();
-//            if (Facade.isExistInDb("TASKS", "NAME", name) || name.equals(""))
-//                System.out.println("Ошибка, введите другие данные");
-//            else
-//                break;
-//        }
-//
-//        System.out.println("Введите описание");
-//        description = in.nextLine();
-//
-//        while (true) {
-//            System.out.println("Введите руководителя");
-//            lead = in.nextLine();
-//            if (!Facade.isExistInDb("USERS", "NAME", lead))
-//                System.out.println("Ошибка, введите другие данные");
-//            else
-//                break;
-//        }
-//        while (true) {
-//            System.out.println("Введите исполнителя");
-//            performer = in.nextLine();
-//            if (!Facade.isExistInDb("USERS", "NAME", performer))
-//                System.out.println("Ошибка, введите другие данные");
-//            else
-//                break;
-//        }
-//
-////        String name = "Задача 2";
-////        String description = "Описание задачи 2";
-////        String lead = "Роман";
-////        String performer = "Александр";
-//
-//
-//        return Facade.addNewTask(name, description, lead, performer);
-//
-//
-//    }
 
 
-    public static int addReportToTask() {//todo исправить с учетом авторизации
+    public static int addReportToTask() {//todo исправить
         int ret = 0;
         System.out.println("Создание создание отчета к задаче");
         System.out.println("Введите название задачи");

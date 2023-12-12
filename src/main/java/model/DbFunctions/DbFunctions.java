@@ -53,7 +53,7 @@ public class DbFunctions {
                 CREATE TABLE tasks
                 (
                     id int primary key auto_increment,
-                    name varbinary(max) not null unique,
+                    name varbinary(max) not null,
                     description varbinary(max),
                     idLead int,
                     idPerformer int,

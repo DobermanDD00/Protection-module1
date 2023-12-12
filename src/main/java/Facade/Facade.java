@@ -9,7 +9,7 @@ import model.User;
 import userInterface.controller.Controller;
 import userInterface.controller.DataLogIn;
 import userInterface.view.TaskForView;
-import userInterface.view.View;
+
 
 import java.util.List;
 
@@ -45,17 +45,21 @@ public class Facade {
                 case 100: // Выйти в главное меню
                     choice = Controller.mainMenu();
                     break;
-                case 101: // Просмотр полученных задач todo !!!!!!!!!!
+                case 101: // Просмотр полученных задач
                     tasks = Task.getTasks(userCurrent, Task.PERFORMER_MODE);
+
                     viewTasks(changeTasksToTaskForView(tasks));
                     choice = 2;
                     break;
-                case 102: // Просмотр назначенных задач todo !!!!!!!!!!!
+                case 102: // Просмотр назначенных задач
                     tasks = Task.getTasks(userCurrent, Task.LEAD_MODE);
                     viewTasks(changeTasksToTaskForView(tasks));
                     choice = 2;
                     break;
-                case 103: // Создать новую задачу todo !!!!!!!!!!
+                case 103: // Создать новую задачу
+                    Task task = Controller.createNewTask();
+                    Task.createNewTask(task);
+                    choice = 2;
                     break;
                 case 200: // Выйти в главное меню
                     break;
@@ -80,14 +84,14 @@ public class Facade {
         User.createNewUser(user);
         user = new User(1, "Роман", 4, 1, null, null);
         User.createNewUser(user);
-        user = new User(2, "Григорий", 3, 2, null, null);
+        user = new User(2, "Григорий", 3, 1, null, null);
         User.createNewUser(user);
-        user = new User(3, "1", 2, 3, null, null);
+        user = new User(3, "1", 2, 2, null, null);
         User.createNewUser(user);
         User.saveUserPrivateKey(user);
-        user = new User(4, "Виктория", 1, 4, null, null);
+        user = new User(4, "Виктория", 1, 3, null, null);
         User.createNewUser(user);
-        user = new User(5, "Владимир", 1, 4, null, null);
+        user = new User(5, "Владимир", 1, 3, null, null);
         User.createNewUser(user);
 
         Task task;

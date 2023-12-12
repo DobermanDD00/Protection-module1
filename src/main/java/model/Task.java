@@ -9,6 +9,8 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +50,7 @@ public class Task {
         if (task == null) return null;
 
         task.setId(DbFunctions.getNewIdTask());
+        task.initializeReport();
 
         byte[] pubKeyLeadByte = DbFunctions.getUserPublicKey(task.getIdLead());
         if (pubKeyLeadByte == null) return null;
@@ -62,18 +65,6 @@ public class Task {
         DbFunctions.addNewTask(changeTaskToTaskDb(task, secretKey));
         return secretKey;
 
-    }
-
-    public SecretKey updateProtection(PublicKey pubKeyLead, PublicKey pubKeyPerformer) {
-        this.generateSignLead();
-        this.generateSignPerformer();
-
-        SecretKey secretKey = Security.generatedAesKey();
-
-        this.setPassForLead(Security.cipherRSAEncrypt(Security.encodedAnyKey(secretKey), pubKeyLead));
-        this.setPassForPerformer(Security.cipherRSAEncrypt(Security.encodedAnyKey(secretKey), pubKeyPerformer));
-
-        return secretKey;
     }
 
     public static Task getTask(int id, PrivateKey privateKey, int userMode) {
@@ -114,6 +105,9 @@ public class Task {
         Status status = Status.getStatus(this.idStatus);
         return status.getName();
     }
+
+
+
 
 
     public static Task changeTaskDbToTask(TaskDb taskDb, SecretKey secretKey) {
@@ -184,6 +178,19 @@ public class Task {
         return taskDb;
     }
 
+
+    public SecretKey updateProtection(PublicKey pubKeyLead, PublicKey pubKeyPerformer) {
+        this.generateSignLead();
+        this.generateSignPerformer();
+
+        SecretKey secretKey = Security.generatedAesKey();
+
+        this.setPassForLead(Security.cipherRSAEncrypt(Security.encodedAnyKey(secretKey), pubKeyLead));
+        this.setPassForPerformer(Security.cipherRSAEncrypt(Security.encodedAnyKey(secretKey), pubKeyPerformer));
+
+        return secretKey;
+    }
+
     public static SecretKey getSecretKey(byte[] cipherPass, PrivateKey privateKey) {
         if (privateKey == null || cipherPass == null) {
             System.out.println("privateKey == null || cipherPass == null");
@@ -194,7 +201,6 @@ public class Task {
         return Security.decodedKeyAes(pass);
 
     }
-
 
     public void generateSignLead() {
         byte[] signLead = Security.generateHashSha256(ChangeFormat.intToBytes(this.getId()), this.getName().getBytes());
@@ -218,4 +224,18 @@ public class Task {
         return Arrays.equals(task1.getSignPerformer(), task2.getSignPerformer());
     }
 
+    public void addToReport(String str){
+        this.setReport(this.getReport()+ str);
+    }
+    public void initializeReport (){
+        this.setIdStatus(1);
+        this.setReport("Задача создана.\n");
+        this.addToReport("Название: "+ name+"\n");
+        this.addToReport("Дата: " + LocalDateTime.now().toString() +"\n");
+        this.addToReport("Руководитель: "+ User.getUserName(this.idLead)+"\n");
+        this.addToReport("Исполнитель: "+ User.getUserName(this.idPerformer)+"\n");
+        this.addToReport("Статус :" + Status.getStatusName(this.getIdStatus()));
+    }
 }
+
+

@@ -26,10 +26,10 @@ public class ChangeFormatToView {
         TaskForView taskForView = new TaskForView();
         taskForView.setId(task.getId());
         taskForView.setName(task.getName());
-        taskForView.setDescription((taskForView.getDescription()));
-        taskForView.setLead(task.getIdLead()+""); //TODO !!!!!!!!!!!!!!
-        taskForView.setPerformer(task.getIdPerformer()+"");
-        taskForView.setStatus(task.getStatus());
+        taskForView.setDescription((task.getDescription()));
+        taskForView.setLead(User.getUserName(task.getIdLead()));
+        taskForView.setPerformer(User.getUserName(task.getIdPerformer()));
+        taskForView.setStatus(Status.getStatusName(task.getIdStatus()));
         taskForView.setReport(task.getReport());
 
         return taskForView;
@@ -46,4 +46,6 @@ public class ChangeFormatToView {
         }
         return tasksForView;
     }
+
+
 }
