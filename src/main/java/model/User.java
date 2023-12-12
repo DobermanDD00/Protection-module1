@@ -1,15 +1,17 @@
 package model;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import model.DbFunctions.DbFunctions;
+import model.DbFunctions.UserDb;
 
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode
 
 public class User {
@@ -17,13 +19,10 @@ public class User {
     private String name;
     private int idRole;
     private int idLead;
-    private byte[] keyPublic;
-    private byte[] keyPrivate;
+    private PublicKey keyPublic;
+    private PrivateKey keyPrivate;
 
     public static void main(String[] args) {
-
-        byte[] ss1 = "fdf".getBytes();
-        byte[] ss2 = "fdf".getBytes();
 
 
         User user1 = new User(33, "dff", 33, 3, null, null);
@@ -34,16 +33,36 @@ public class User {
     public static void createNewUser(User user)
     {
         KeyPair keyPair = Security.generatedRsaKeys();
-        user.setKeyPublic(Security.encodedAnyKey(keyPair.getPublic()));
-        user.setKeyPrivate(Security.encodedAnyKey(keyPair.getPrivate()));
+        user.setKeyPublic(keyPair.getPublic());
+        user.setKeyPrivate(keyPair.getPrivate());
 
         user.setId(DbFunctions.getNewIdUser());
-        DbFunctions.addNewUser(user);
+
+        UserDb userDb = new UserDb(user.getId(), user.getName(), user.getIdRole(), user.getIdLead(), Security.encodedAnyKey(user.getKeyPublic()));
+        DbFunctions.addNewUser(userDb);
 
     }
+    public static User getUser(int id)
+    {
+        UserDb userDb = DbFunctions.getUser(id);
+        User user = new User(userDb.getId(), userDb.getName(), userDb.getIdRole(), userDb.getIdLead(), Security.decodedKeyPublicRsa(userDb.getKeyPublic()), null);
+        return user;
+    }
+    public static String getUserName(int id)
+    {
+        return DbFunctions.getUser(id).getName();
+
+    }
+    public static User getUser(String name)
+    {
+        UserDb userDb = DbFunctions.getUser(name);
+        User user = new User(userDb.getId(), userDb.getName(), userDb.getIdRole(), userDb.getIdLead(), Security.decodedKeyPublicRsa(userDb.getKeyPublic()), null);
+        return user;
+    }
+
     public static void saveUserPrivateKey(User user)
     {
-        FileFunctions.writeFile(user.getKeyPrivate(), user.getName()+".txt");
+        FileFunctions.writeFile(Security.encodedAnyKey(user.getKeyPrivate()), user.getName()+".txt");
     }
 
 }

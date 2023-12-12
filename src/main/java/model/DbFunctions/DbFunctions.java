@@ -1,13 +1,10 @@
-package model;
+package model.DbFunctions;
 
 import tools.ChangeFormat;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
-
-import static tools.ChangeFormat.byteToHexStr;
 
 
 public class DbFunctions {
@@ -56,14 +53,16 @@ public class DbFunctions {
                 CREATE TABLE tasks
                 (
                     id int primary key auto_increment,
-                    name varchar(256) not null unique,
+                    name varbinary(max) not null unique,
                     description varbinary(max),
                     idLead int,
                     idPerformer int,
-                    signlead varbinary(32),
                     status int,
                     report varbinary(max),
-                    signperformer varbinary(32)
+                    signlead varbinary(32),
+                    signperformer varbinary(32),
+                    passForLead varbinary (512),
+                    passForPerformer varbinary (512)
                 );""";
         updateDb(str2);
         String str3 = """
@@ -96,33 +95,27 @@ public class DbFunctions {
 
     }
 
-    public static User addNewUser(User user)
-    {
-
-
+    public static void addNewUser(UserDb userDb) {
         String sqlQuery = "insert into USERS\n" +
                 "(id, name, idRole, idLead, keyPublic)\n" +
-                "VALUES ("+user.getId()+",'"+user.getName()+"', "+user.getIdRole()+", "+user.getIdLead()+","+ ChangeFormat.byteToHexStr(user.getKeyPublic()) +"  );";
+                "VALUES (" + userDb.getId() + ",'" + userDb.getName() + "', " + userDb.getIdRole() + ", " + userDb.getIdLead() + "," + ChangeFormat.byteToHexStr(userDb.getKeyPublic()) + "  );";
 
         updateDb(sqlQuery);
-        return user;
     }
 
-    public static void updateUser(User user)
-    {
+    public static void updateUser(UserDb user) {
         String sqlQuery = "update USERS\n" +
-                "set NAME = '"+user.getName()+"',\n" +
-                "    IDROLE = "+user.getIdRole()+",\n" +
-                "    IDLEAD = "+user.getIdLead()+",\n" +
-                "    KEYPUBLIC = "+ChangeFormat.byteToHexStr(user.getKeyPublic())+"\n" +
-                "where ID = "+user.getId()+";";
+                "set NAME = '" + user.getName() + "',\n" +
+                "    IDROLE = " + user.getIdRole() + ",\n" +
+                "    IDLEAD = " + user.getIdLead() + ",\n" +
+                "    KEYPUBLIC = " + ChangeFormat.byteToHexStr(user.getKeyPublic()) + "\n" +
+                "where ID = " + user.getId() + ";";
 
         updateDb(sqlQuery);
     }
 
-    public static User getUser(int id)
-    {
-        User user = null;
+    public static UserDb getUser(int id) {
+        UserDb userDb;
         try {
             Class.forName("org.h2.Driver");
             con = DriverManager.getConnection(url, DbFunctions.user, password);
@@ -132,13 +125,12 @@ public class DbFunctions {
 
             if (rs.next()) {
 
-                user = new User(
+                userDb = new UserDb(
                         rs.getInt("ID"),
                         rs.getString("NAME"),
                         rs.getInt("idROLE"),
                         rs.getInt("idLEAD"),
-                        rs.getBytes("KEYPUBLIC"),
-                        null
+                        rs.getBytes("KEYPUBLIC")
                 );
 
 
@@ -160,13 +152,13 @@ public class DbFunctions {
             throw new RuntimeException(e);
         }
 
-        return user;
+        return userDb;
 
 
     }
-    public static User getUser(String name)
-    {
-        User user = null;
+
+    public static UserDb getUser(String name) {
+        UserDb userDb;
         try {
             Class.forName("org.h2.Driver");
             con = DriverManager.getConnection(url, DbFunctions.user, password);
@@ -176,13 +168,12 @@ public class DbFunctions {
 
             if (rs.next()) {
 
-                user = new User(
+                userDb = new UserDb(
                         rs.getInt("ID"),
                         rs.getString("NAME"),
                         rs.getInt("idROLE"),
                         rs.getInt("idLEAD"),
-                        rs.getBytes("KEYPUBLIC"),
-                        null
+                        rs.getBytes("KEYPUBLIC")
                 );
 
 
@@ -204,15 +195,193 @@ public class DbFunctions {
             throw new RuntimeException(e);
         }
 
-        return user;
+        return userDb;
 
 
     }
 
-    public static int getFieldInt(String tableName, String columnForFind, String dataForFind, String columnForResult)
-    {
-        String sqlQuery = "SELECT "+columnForResult+" from " + tableName + "\n" +
-                "where "+columnForFind+" = '"+dataForFind+"' LIMIT 1;";
+    public static byte[] getUserPublicKey(int idUser) {
+        return getFieldBytes("USERS", "ID", Integer.toString(idUser), "keyPublic");
+    }
+
+
+    public static void addNewTask(TaskDb taskDb) {
+        String sqlQuery = "insert into TASKS\n" +
+                "(id, name, description, idLead, idPerformer, status, report, " +
+                "signlead, signperformer, passForLead, passForPerformer)\n" +
+                "VALUES (" + taskDb.getId() + "," + ChangeFormat.byteToHexStr(taskDb.getName()) + ", " + ChangeFormat.byteToHexStr(taskDb.getDescription()) + ", " + taskDb.getIdLead() + ", " + taskDb.getIdPerformer() + ", " + taskDb.getIdStatus() + ", " + ChangeFormat.byteToHexStr(taskDb.getReport())
+                + ", " + ChangeFormat.byteToHexStr(taskDb.getSignLead()) + ", " + ChangeFormat.byteToHexStr(taskDb.getSignPerformer()) + ", " + ChangeFormat.byteToHexStr(taskDb.getPassForLead()) + ", " + ChangeFormat.byteToHexStr(taskDb.getPassForPerformer()) + "  );";
+
+        updateDb(sqlQuery);
+    }
+
+    public static TaskDb getTaskDb(int id) {
+        TaskDb taskDb;
+        try {
+            Class.forName("org.h2.Driver");
+            con = DriverManager.getConnection(url, DbFunctions.user, password);
+            stat = con.createStatement();
+
+            rs = stat.executeQuery("SELECT * FROM TASKS WHERE ID = '" + id + "' LIMIT 1;");
+
+            if (rs.next()) {
+
+                taskDb = new TaskDb(
+                        rs.getInt("ID"),
+                        rs.getBytes("NAME"),
+                        rs.getBytes("DESCRIPTION"),
+                        rs.getInt("idLead"),
+                        rs.getInt("idPerformer"),
+                        rs.getInt("status"),
+                        rs.getBytes("report"),
+                        rs.getBytes("signLead"),
+                        rs.getBytes("signPerformer"),
+                        rs.getBytes("passForLead"),
+                        rs.getBytes("passForPerformer")
+                );
+
+
+            } else {
+                return null;
+            }
+            rs.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        try {
+            stat.close();
+            con.close();
+
+        } catch (SQLException e) {
+            System.out.println("Исключение соединение с БД не закрыто");
+            throw new RuntimeException(e);
+        }
+
+        return taskDb;
+
+    }
+
+    public static int getNewIdTask() {
+        return getNewId("Tasks");
+    }
+
+
+    public static TaskDb getTaskDb1(int id) {
+        List<TaskDb> tasks = getTasks("SELECT * FROM TASKS WHERE ID = '" + id + "' LIMIT 1;");
+        for (TaskDb taskDb : tasks) {
+            return taskDb;
+        }
+        return null;
+    }
+
+    public static List<TaskDb> getTasksLead(int idLead) {
+        return getTasks("idLead", Integer.toString(idLead));
+    }
+
+    public static List<TaskDb> getTasksPerformer(int idPerformer) {
+        return getTasks("idPerformer", Integer.toString(idPerformer));
+    }
+
+    private static List<TaskDb> getTasks(String columnName, String data) {
+        return getTasks("SELECT * FROM TASKS WHERE " + columnName + " = " + data + ";");
+
+    }
+
+
+    private static List<TaskDb> getTasks(String sqlQuery) {
+        List<TaskDb> tasksDb = null;
+        try {
+            Class.forName("org.h2.Driver");
+            con = DriverManager.getConnection(url, user, password);
+            stat = con.createStatement();
+
+            rs = stat.executeQuery(sqlQuery);
+
+            while (rs.next()) {
+                if (tasksDb == null)
+                    tasksDb = new ArrayList<>();
+
+                tasksDb.add(new TaskDb(
+                        rs.getInt("ID"),
+                        rs.getBytes("NAME"),
+                        rs.getBytes("DESCRIPTION"),
+                        rs.getInt("idLead"),
+                        rs.getInt("idPerformer"),
+                        rs.getInt("status"),
+                        rs.getBytes("report"),
+                        rs.getBytes("signLead"),
+                        rs.getBytes("signPerformer"),
+                        rs.getBytes("passForLead"),
+                        rs.getBytes("passForPerformer")
+                ));
+
+
+            }
+            rs.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        try {
+            stat.close();
+            con.close();
+
+        } catch (SQLException e) {
+            System.out.println("Исключение соединение с БД не закрыто");
+            throw new RuntimeException(e);
+        }
+
+
+//        System.out.println("Количество найденных задач в Бд: "+tasksDb.size());
+        return tasksDb;
+
+
+    }
+
+
+    public static StatusDb getStatus(int id) {
+        StatusDb statusDb;
+        try {
+            Class.forName("org.h2.Driver");
+            con = DriverManager.getConnection(url, DbFunctions.user, password);
+            stat = con.createStatement();
+            rs = stat.executeQuery("SELECT * FROM STATUSES WHERE ID = " + id + " LIMIT 1;");
+
+            if (rs.next()) {
+                statusDb = new StatusDb(
+                        rs.getInt("ID"),
+                        rs.getString("NAME")
+                );
+
+
+            } else {
+
+                return null;
+            }
+            rs.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        try {
+            stat.close();
+            con.close();
+
+        } catch (SQLException e) {
+            System.out.println("Исключение соединение с БД не закрыто");
+            throw new RuntimeException(e);
+        }
+        return statusDb;
+    }
+
+
+    public static int getFieldInt(String tableName, String columnForFind, String dataForFind, String columnForResult) {
+        String sqlQuery = "SELECT " + columnForResult + " from " + tableName + "\n" +
+                "where " + columnForFind + " = '" + dataForFind + "' LIMIT 1;";
         int field = -1;
 
         try {
@@ -243,10 +412,10 @@ public class DbFunctions {
         }
         return field;
     }
-    public static String getFieldString(String tableName, String columnForFind, String dataForFind, String columnForResult)
-    {
-        String sqlQuery = "SELECT "+columnForResult+" from " + tableName + "\n" +
-                "where "+columnForFind+" = '"+dataForFind+"' LIMIT 1;";
+
+    public static String getFieldString(String tableName, String columnForFind, String dataForFind, String columnForResult) {
+        String sqlQuery = "SELECT " + columnForResult + " from " + tableName + "\n" +
+                "where " + columnForFind + " = '" + dataForFind + "' LIMIT 1;";
         String field = "";
 
         try {
@@ -278,10 +447,44 @@ public class DbFunctions {
         return field;
     }
 
-    public static int getNewIdUser()
-    {
+    public static byte[] getFieldBytes(String tableName, String columnForFind, String dataForFind, String columnForResult) {
+        String sqlQuery = "SELECT " + columnForResult + " from " + tableName + "\n" +
+                "where " + columnForFind + " = '" + dataForFind + "' LIMIT 1;";
+        byte[] field = null;
+
+        try {
+            Class.forName("org.h2.Driver");
+            con = DriverManager.getConnection(url, user, password);
+            stat = con.createStatement();
+
+            rs = stat.executeQuery(sqlQuery);
+
+            if (rs.next()) {
+                field = rs.getBytes(columnForResult);
+            }
+
+
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println("Исключение, данные из БД не получены");
+            throw new RuntimeException(e);
+        }
+
+        try {
+            rs.close();
+            stat.close();
+            con.close();
+
+        } catch (SQLException e) {
+            System.out.println("Исключение, соединение с БД не закрыто");
+            throw new RuntimeException(e);
+        }
+        return field;
+    }
+
+    public static int getNewIdUser() {
         return getNewId("Users");
     }
+
     public static int getNewId(String tableName)// Пример для запросов к БД
     {
         String sqlQuery = "SELECT ID from " + tableName + "\n" +
@@ -359,8 +562,6 @@ public class DbFunctions {
 
             if (rs.next())
                 ret = true;
-            else
-                ret = false;
 
 
         } catch (ClassNotFoundException | SQLException e) {

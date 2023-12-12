@@ -3,7 +3,6 @@ package model;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -49,7 +48,6 @@ public class Security {
     public static SecretKey decodedKeyAes(byte[] bytesOfKey) {
         return new SecretKeySpec(bytesOfKey, 0, bytesOfKey.length, "AES");
     }
-
 
 
     public static byte[] cipherRSAEncrypt(byte[] data, Key key) {
@@ -101,7 +99,8 @@ public class Security {
             throw new RuntimeException(e);
         }
     }
-    public static RSAPrivateKey decodedKeyPrivateRsa(byte[] bytesOfKey) {
+    public static RSAPrivateKey decodedKeyPrivateRsa(byte[] bytesOfKey)
+    {
         try {
             PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytesOfKey);
             KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -117,23 +116,20 @@ public class Security {
     public static boolean isCorrectPairKeys(byte[] bytesKeyPublic, byte[] bytesKeyPrivate){
         if(bytesKeyPublic == null || bytesKeyPrivate == null)
             return false;
-        byte[] plainText = generateRandomBytes(100);
-
         RSAPublicKey keyPub = decodedKeyPublicRsa(bytesKeyPublic);
-        byte[] encryptedText = cipherRSAEncrypt(plainText, keyPub);
         RSAPrivateKey keyPri = decodedKeyPrivateRsa(bytesKeyPrivate);
-        byte[] decryptedText = cipherRSADecrypt(encryptedText, keyPri);
+        return isCorrectPairKeys(keyPub, keyPri);
 
+    }
+
+    public static boolean isCorrectPairKeys(PublicKey publicKey, PrivateKey privateKey){
+        byte[] plainText = generateRandomBytes(100);
+        byte[] encryptedText = cipherRSAEncrypt(plainText, publicKey);
+        byte[] decryptedText = cipherRSADecrypt(encryptedText, privateKey);
 
         return Arrays.equals(plainText, decryptedText);
 
     }
-
-
-
-
-
-
 
 
 

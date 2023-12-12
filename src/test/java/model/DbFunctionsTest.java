@@ -1,10 +1,10 @@
 package model;
 
+import model.DbFunctions.UserDb;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static model.DbFunctions.*;
-import static org.junit.Assert.*;
+import static model.DbFunctions.DbFunctions.*;
 
 
 class DbFunctionsTest {
@@ -54,7 +54,7 @@ class DbFunctionsTest {
                 
                 """;
         updateDb(sqlStr);
-        assertEquals(getFieldInt("ROLES", "NAME", "Администратор", "ID"), 6);
+        Assertions.assertEquals(getFieldInt("ROLES", "NAME", "Администратор", "ID"), 6);
     }
 
     @Test
@@ -76,7 +76,7 @@ class DbFunctionsTest {
                 
                 """;
         updateDb(sqlStr);
-        assertTrue(getFieldString("ROLES", "Name", "Администратор", "NAME").equals("Администратор"));
+        Assertions.assertEquals("Администратор", getFieldString("ROLES", "Name", "Администратор", "NAME"));
     }
 
 
@@ -84,12 +84,11 @@ class DbFunctionsTest {
     void addNewUserTest() {
         initializeDb();
 
-        User user = new User(101, "Вася", 3, 5, Security.generateRandomBytes(512), null);
-        User user1 = addNewUser(user);
-        User user2 = getUser(user1.getId());
+        UserDb user = new UserDb(101, "Вася", 3, 5, Security.generateRandomBytes(512));
+        addNewUser(user);
+        UserDb user2 = getUser(user.getId());
 
-        Assertions.assertTrue(user.equals(user1));
-        Assertions.assertTrue(user2.equals(user1));
+        Assertions.assertEquals(user2, user);
 
 
     }
@@ -98,11 +97,13 @@ class DbFunctionsTest {
     void updateUserTest() {
         initializeDb();
 
-        User user = new User(2, "Вася", 3, 5, Security.generateRandomBytes(512), null);
-        updateUser(user);
-        User user1 = getUser(user.getId());
+        UserDb user = new UserDb(101, "Вася", 3, 5, Security.generateRandomBytes(512));
+        addNewUser(user);
+        UserDb user2 = getUser(user.getId());
 
-        Assertions.assertTrue(user.equals(user1));
+
+        Assertions.assertEquals(user2, user);
+
 
     }
 

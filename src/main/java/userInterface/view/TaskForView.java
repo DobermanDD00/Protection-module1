@@ -2,6 +2,7 @@ package userInterface.view;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -11,9 +12,10 @@ import java.util.ListIterator;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 
 
-public class TaskView {
+public class TaskForView {
 
     private int id;
     private String name;
@@ -27,13 +29,13 @@ public class TaskView {
 
     }
 
-    public static void viewTasks(List<TaskView> listTasks) {
+    public static void viewTasks(List<TaskForView> listTasks) {
         if (listTasks == null) {
             System.out.println("Задачи отсутствуют");
             return;
         }
-        TaskView tempTask;
-        ListIterator<TaskView> iter = listTasks.listIterator();
+        TaskForView tempTask;
+        ListIterator<TaskForView> iter = listTasks.listIterator();
         while (iter.hasNext()) {
             tempTask = iter.next();
 
@@ -42,9 +44,15 @@ public class TaskView {
             System.out.println("Руководитель: " + tempTask.getLead());
             System.out.println("Описание: " + tempTask.getDescription());
             System.out.println("История отчетов: " + tempTask.getReport() + "\n");
-            System.out.println("История отчетов: " + tempTask.getReport() + "\n");
         }
 
+    }
+
+
+    public static void viewTask(TaskForView taskView){
+        ArrayList listTasks = new ArrayList<>();
+        listTasks.add(taskView);
+        viewTasks(listTasks);
     }
 
 
