@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import userInterface.view.TaskForView;
 
 import javax.crypto.SecretKey;
-import javax.swing.text.View;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -121,9 +120,9 @@ class TaskTest {
         Task task1 = getTask(0, user.getKeyPrivate(), LEAD_MODE);
         System.out.println("task "+task.getDescription());
         System.out.println("task1 "+task1.getDescription());
-        System.out.println("taskView "+changeTaskToTaskForView(task1).getDescription());
+        System.out.println("taskView "+ changeTaskToView(task1).getDescription());
 
-        TaskForView.viewTask(changeTaskToTaskForView(task1));
+        TaskForView.viewTask(changeTaskToView(task1));
 
         Assertions.assertTrue(task.equals(task1));
 
@@ -152,10 +151,10 @@ class TaskTest {
 //        Task task = Task.getTask(2, user.getKeyPrivate(), PERFORMER_MODE);
 //        viewTask(changeTaskToTaskForView(task));
         System.out.println("Назначенные задачи:");
-        List<TaskForView> tasksForView = changeTasksToTaskForView(Task.getTasks(user, LEAD_MODE));
+        List<TaskForView> tasksForView = changeTasksToView(Task.getTasks(user, LEAD_MODE));
         viewTasks(tasksForView);
         System.out.println("Полученные задачи:");
-        tasksForView = changeTasksToTaskForView(Task.getTasks(user, PERFORMER_MODE));
+        tasksForView = changeTasksToView(Task.getTasks(user, PERFORMER_MODE));
         viewTasks(tasksForView);
 
 

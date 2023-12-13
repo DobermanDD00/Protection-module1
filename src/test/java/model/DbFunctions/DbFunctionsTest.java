@@ -2,9 +2,14 @@ package model.DbFunctions;
 
 import Facade.Facade;
 import model.Security;
+import model.Status;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import userInterface.view.StatusForView;
 
+import java.util.List;
+
+import static Facade.ChangeFormatToView.*;
 import static model.DbFunctions.DbFunctions.*;
 
 class DbFunctionsTest {
@@ -148,5 +153,11 @@ class DbFunctionsTest {
 
         Assertions.assertTrue(taskDb.equals(taskDb1));
 
+    }
+
+    @Test
+    void getAllStatusesTest() {
+        List<Status> statuses = Status.changeStatusesDbToStatus(DbFunctions.getAllStatuses());
+        StatusForView.viewStatuses(changeStatusesToView(statuses));
     }
 }

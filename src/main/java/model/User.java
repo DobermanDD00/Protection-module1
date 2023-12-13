@@ -7,6 +7,8 @@ import model.DbFunctions.UserDb;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -45,8 +47,18 @@ public class User {
     public static User getUser(int id)
     {
         UserDb userDb = DbFunctions.getUser(id);
-        User user = new User(userDb.getId(), userDb.getName(), userDb.getIdRole(), userDb.getIdLead(), Security.decodedKeyPublicRsa(userDb.getKeyPublic()), null);
-        return user;
+        return changeUserDbToUser(userDb);
+    }
+    public static User changeUserDbToUser(UserDb userDb){
+        return new User(userDb.getId(), userDb.getName(), userDb.getIdRole(), userDb.getIdLead(), Security.decodedKeyPublicRsa(userDb.getKeyPublic()), null);
+
+    }
+    public static List<User> changeUsersDbToUsers(List<UserDb> usersDb){
+        List<User> users = new ArrayList<>();
+        for( UserDb userDb: usersDb){
+            users.add(changeUserDbToUser(userDb));
+        }
+        return users;
     }
     public static String getUserName(int id)
     {

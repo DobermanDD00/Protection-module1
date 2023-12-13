@@ -10,9 +10,10 @@ import userInterface.controller.DataLogIn;
 import userInterface.view.TaskForView;
 
 
+import javax.annotation.processing.SupportedSourceVersion;
 import java.util.List;
 
-import static Facade.ChangeFormatToView.changeTasksToTaskForView;
+import static Facade.ChangeFormatToView.changeTasksToView;
 import static userInterface.view.TaskForView.viewTasks;
 
 
@@ -42,10 +43,10 @@ public class Facade {
                 case 2: // Перейти в меню задач
                     choice = 100;
                     break;
-                case 3: // Перейти в меню пользователей TODO !!!!!!!!!!!!
-
-                    break;
-                case 4: // Выйти из программы
+//                case 3: // Перейти в меню пользователей TODO !!!!!!!!!!!!
+//
+//                    break;
+                case 3: // Выйти из программы
                     return;
 
 
@@ -55,12 +56,12 @@ public class Facade {
                 case 101: // Просмотр полученных задач
                     currentTasks = Task.getTasks(userCurrent, Task.PERFORMER_MODE);
 
-                    viewTasks(changeTasksToTaskForView(currentTasks));
+                    viewTasks(changeTasksToView(currentTasks));
                     choice = 100;
                     break;
                 case 102: // Просмотр назначенных задач
                     currentTasks = Task.getTasks(userCurrent, Task.LEAD_MODE);
-                    viewTasks(changeTasksToTaskForView(currentTasks));
+                    viewTasks(changeTasksToView(currentTasks));
                     choice = 100;
                     break;
                 case 103: // Выбрать задачу и перейти в меню задач
@@ -80,10 +81,11 @@ public class Facade {
                 case 200: // ___Выбор задачи и меню задачи___
                     currentTask = Controller.selectTask(userCurrent);
                     if (currentTask == null){
+                        System.out.println("11111111111111111");
                         choice = 100;
                         break;
                     }
-                    TaskForView.viewTask(ChangeFormatToView.changeTaskToTaskForView(currentTask));
+                    TaskForView.viewTask(ChangeFormatToView.changeTaskToView(currentTask));
                     choice = 200 + Controller.taskMenu(currentTask);
                     break;
                 case 201: // Редактировать задачу
@@ -123,13 +125,18 @@ public class Facade {
                     Controller.changeStatusTask(currentTask);
                     choice = 300;
                     break;
-                case 306: // Удалить задачу
+                case 306: // Добавить отчет
+                    Controller.addReportToTask(currentTask);
+                    choice = 300;
+                    break;
+                case 307: // Удалить задачу
+                    Controller.deleteTask(currentTask);
                     choice = 202;
                     break;
-                case 307: // Вернуться к выбору задачи и меню задачи
+                case 308: // Вернуться к выбору задачи и меню задачи
                     choice = 200;
                     break;
-                case 308: // Вернуться к меню задач
+                case 309: // Вернуться к меню задач
                     choice = 100;
                     break;
 
@@ -166,6 +173,8 @@ public class Facade {
         User.createNewUser(user);
 
         Task task;
+        task = new Task(0, "Протереть пыль с компьютеров", "Протереть пыль с компьютера ASUS", 0, 0, 1, "Ищу тряпку", null, null, null, null);
+        Task.createNewTask(task);
         task = new Task(0, "Починить токарный станок", "Починить токарный станок 6Б46", 3, 4, 3, "Заказал детели", null, null, null, null);
         Task.createNewTask(task);
         task = new Task(1, "Починить фрезерный станок", "Починить фрезерный станок 3ГСЕ51", 3, 5, 3, "Приступлю в среду", null, null, null, null);

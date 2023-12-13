@@ -1,6 +1,6 @@
 package model.DbFunctions;
 
-import model.Task;
+import model.User;
 import tools.ChangeFormat;
 
 import java.sql.*;
@@ -31,7 +31,7 @@ public class DbFunctions {
         String str2 = """
                 CREATE TABLE roles
                 (
-                    id int primary key auto_increment,
+                    id int primary key auto_increment not null,
                     name varchar(256) not null unique
                 );
 
@@ -201,9 +201,62 @@ public class DbFunctions {
 
     }
 
+
     public static byte[] getUserPublicKey(int idUser) {
         return getFieldBytes("USERS", "ID", Integer.toString(idUser), "keyPublic");
     }
+
+    public static List<UserDb> getAllUsers(){
+        return getUsers("SELECT * FROM Users ORDER BY id ASC;");
+    }
+
+
+    private static List<UserDb> getUsers(String sqlQuery) {
+        List<UserDb> userDb = new ArrayList<>();
+        try {
+            Class.forName("org.h2.Driver");
+            con = DriverManager.getConnection(url, user, password);
+            stat = con.createStatement();
+
+            rs = stat.executeQuery(sqlQuery);
+
+            while (rs.next()) {
+                if (userDb == null)
+                    userDb = new ArrayList<>();
+
+                userDb.add( new UserDb(
+                        rs.getInt("ID"),
+                        rs.getString("NAME"),
+                        rs.getInt("idROLE"),
+                        rs.getInt("idLEAD"),
+                        rs.getBytes("KEYPUBLIC")
+                ));
+
+
+            }
+            rs.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        try {
+            stat.close();
+            con.close();
+
+        } catch (SQLException e) {
+            System.out.println("Исключение соединение с БД не закрыто");
+            throw new RuntimeException(e);
+        }
+
+
+//        System.out.println("Количество найденных задач в Бд: "+tasksDb.size());
+        return userDb;
+
+
+    }
+
+
 
 
     public static void addNewTask(TaskDb taskDb) {
@@ -357,7 +410,9 @@ public class DbFunctions {
 
 
     }
-
+    public static void deleteTask(int id){
+        updateDb(" DELETE FROM Tasks WHERE Id = "+id);
+    }
 
     public static StatusDb getStatus(int id) {
         StatusDb statusDb;
@@ -393,6 +448,53 @@ public class DbFunctions {
             throw new RuntimeException(e);
         }
         return statusDb;
+    }
+
+    public static List<StatusDb> getAllStatuses(){
+        return getStatuses("SELECT * FROM Statuses ORDER BY id ASC;");
+    }
+
+
+    private static List<StatusDb> getStatuses(String sqlQuery) {
+        List<StatusDb> statusDb = null;
+        try {
+            Class.forName("org.h2.Driver");
+            con = DriverManager.getConnection(url, user, password);
+            stat = con.createStatement();
+
+            rs = stat.executeQuery(sqlQuery);
+
+            while (rs.next()) {
+                if (statusDb == null)
+                    statusDb = new ArrayList<>();
+
+                statusDb.add(new StatusDb(
+                        rs.getInt("ID"),
+                        rs.getString("NAME")
+                ));
+
+
+            }
+            rs.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        try {
+            stat.close();
+            con.close();
+
+        } catch (SQLException e) {
+            System.out.println("Исключение соединение с БД не закрыто");
+            throw new RuntimeException(e);
+        }
+
+
+//        System.out.println("Количество найденных задач в Бд: "+tasksDb.size());
+        return statusDb;
+
+
     }
 
 

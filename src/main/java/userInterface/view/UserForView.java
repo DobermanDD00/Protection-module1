@@ -36,7 +36,7 @@ public class UserForView {
         UserForView tempUser;
         for (UserForView listUser : listUsers) {
             tempUser = listUser;
-            System.out.println("Имя: " + tempUser.getName());
+            System.out.println("Id - "+tempUser.getId()+" Имя: " + tempUser.getName());
             System.out.println("Должность: " + tempUser.getRole());
             System.out.println("Руководитель: " + tempUser.getLead());
             System.out.println();
