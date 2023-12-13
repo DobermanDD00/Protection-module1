@@ -66,6 +66,22 @@ public class Task {
         return secretKey;
 
     }
+    public SecretKey updateTask(){
+        if (this == null) return null;
+
+        byte[] pubKeyLeadByte = DbFunctions.getUserPublicKey(this.getIdLead());
+        if (pubKeyLeadByte == null) return null;
+        PublicKey pubKeyLead = Security.decodedKeyPublicRsa(pubKeyLeadByte);
+
+        byte[] pubKeyPerformerByte = DbFunctions.getUserPublicKey(this.getIdPerformer());
+        if (pubKeyPerformerByte == null) return null;
+        PublicKey pubKeyPerformer = Security.decodedKeyPublicRsa(pubKeyPerformerByte);
+        SecretKey secretKey = this.updateProtection(pubKeyLead, pubKeyPerformer);
+
+
+        DbFunctions.updateTask(changeTaskToTaskDb(this, secretKey));
+        return secretKey;
+    }
 
     public static Task getTask(int id, PrivateKey privateKey, int userMode) {
 
@@ -140,7 +156,7 @@ public class Task {
         List<Task> tasks = new ArrayList<>();
         Task task;
         SecretKey secretKey;
-        System.out.println("tasksDb.size() "+tasksDb.size());
+//        System.out.println("tasksDb.size() "+tasksDb.size());
         for (TaskDb taskDb : tasksDb){
             if (userMode == Task.LEAD_MODE)
                 secretKey = getSecretKey(taskDb.getPassForLead(), privateKey);

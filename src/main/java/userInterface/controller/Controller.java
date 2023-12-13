@@ -1,13 +1,13 @@
 package userInterface.controller;
 
 import model.DbFunctions.DbFunctions;
-import model.Status;
+import model.DbFunctions.TaskDb;
 import model.Task;
 import model.User;
-import userInterface.view.TaskForView;
+import tools.ChangeFormat;
 
 
-import java.time.LocalDate;
+import javax.crypto.SecretKey;
 import java.util.Scanner;
 
 public class Controller {
@@ -28,18 +28,21 @@ public class Controller {
         System.out.println("Главное меню");
         while (true) {
             System.out.println("Выберете действие:");
-            System.out.println("0 - Выйти из программы.");
             System.out.println("1 - Сменить пользователя.");
             System.out.println("2 - Перейти в меню задач.");
+            System.out.println("3 - Перейти в меню пользователей.");
+            System.out.println("4 - Выйти из программы.");
             Scanner in = new Scanner(System.in);
             String choice = in.nextLine();
             switch (choice) {
-                case "0":
-                    return 0;
                 case "1":
                     return 1;
                 case "2":
                     return 2;
+                case "3":
+                    return 3;
+                case "4":
+                    return 4;
 
                 default:
                     System.out.println("Ошибка, введите другие данные");
@@ -47,25 +50,28 @@ public class Controller {
         }
     }
 
-    public static int taskMenu() {
+    public static int tasksMenu() {
         System.out.println("Меню задач");
         while (true) {
             System.out.println("Выберете действие:");
-            System.out.println("0 - Выйти в главное меню.");
             System.out.println("1 - Просмотр полученных задач.");
             System.out.println("2 - Просмотр назначенных задач.");
-            System.out.println("3 - Создать новую задачу.");
+            System.out.println("3 - Выбрать задачу и перейти в меню задачи.");
+            System.out.println("4 - Создать новую задачу.");
+            System.out.println("5 - Выйти в главное меню.");
             Scanner in = new Scanner(System.in);
             String choice = in.nextLine();
             switch (choice) {
-                case "0":
-                    return 0;
                 case "1":
                     return 1;
                 case "2":
                     return 2;
                 case "3":
                     return 3;
+                case "4":
+                    return 4;
+                case "5":
+                    return 5;
 
                 default:
                     System.out.println("Ошибка, введите другие данные");
@@ -113,68 +119,192 @@ public class Controller {
         return task;
     }
 
+    public static Task selectTask(User user) {
+        Task task;
+        while (true) {
+            System.out.println("Выберете задачу:");
+            System.out.println("Для выбора  введите число перед названием задачи, 0 - Выйти в меню задач для просмотра доступных задач");
+            Scanner in = new Scanner(System.in);
+            String choice = in.nextLine();
+            if (choice.equals("0")) {
+                return null;
+            }
 
-//    public static Task selectTask(User user) {
-//        Task task;
-//        while (true) {
-//            System.out.println("Выберете задачу:");
-//            System.out.println("Для выбора  введите число перед названием задачи, 0 - Выйти в меню задач");
-//            Scanner in = new Scanner(System.in);
-//            String choice = in.nextLine();
-//            if (choice.equals("0")) {
-//                System.out.println("aaaaaaaaaaaaaaaaaaaaaaaa");//******************************8
-//                return null;
-//            }
-//            else{
-//                System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");//************************
-//
-//
-//            }
-//            if ((task = Facade.FcdAccessToTask("ID", Integer.toString(Facade.strToInt(choice)), user.getName())) == null)
-//                System.out.println("Ошибка, введите другие данные");
-//            else
-//                return task;
-//
-//
-//        }
-//
-//    }
+            if (!DbFunctions.isExistInDb("tasks", "id", choice)) {
+                System.out.println("Ошибка, данная задача не существует");
+                continue;
+            }
+            TaskDb taskDb = DbFunctions.getTaskDb(ChangeFormat.strToInt(choice));
+            SecretKey secretKey = null;
+            if (taskDb.getIdLead() == user.getId()){
+                secretKey = Task.getSecretKey(taskDb.getPassForLead(), user.getKeyPrivate());
+            } else if (taskDb.getIdPerformer() == user.getId()) {
+                secretKey = Task.getSecretKey(taskDb.getPassForPerformer(), user.getKeyPrivate());
+            }else{
+                System.out.println("Ошибка, у вас нет доступа к задаче");
+                continue;
+            }
 
-    public static void editTask(Task task)//todo
+            task = Task.changeTaskDbToTask(taskDb, secretKey);
+            return task;
+
+
+        }
+
+    }
+
+    public static int taskMenu(Task task){
+        System.out.println("Меню задачи: " + task.getId()+" - "+task.getName());
+        while (true) {
+            System.out.println("Выберете действие:");
+            System.out.println("1 - Редактировать задачу.");
+            System.out.println("2 - Удалить задачу.");
+            System.out.println("3 - Выйти в меню задач.");
+            System.out.println("4 - Выйти в главное меню.");
+            Scanner in = new Scanner(System.in);
+            String choice = in.nextLine();
+            switch (choice) {
+                case "1":
+                    return 1;
+                case "2":
+                    return 2;
+                case "3":
+                    return 3;
+                case "4":
+                    return 4;
+
+                default:
+                    System.out.println("Ошибка, введите другие данные");
+            }
+        }
+    }
+
+
+    public static int menuEditTask(Task task, User user)
     {
         while (true) {
             System.out.println("Выберете действие:");
-            System.out.println("0 - Вернуться к выбору задачи.");
             System.out.println("1 - Изменить название.");
             System.out.println("2 - Изменить описание.");
             System.out.println("3 - Сменить руководителя.");
             System.out.println("4 - Сменить исполнителя.");
             System.out.println("5 - Сменить статус.");
             System.out.println("6 - Удалить задачу.");
+            System.out.println("7 - Вернуться к выбору задачи и меню задачи.");
+            System.out.println("8 - Вернуться к меню задач.");
             Scanner in = new Scanner(System.in);
             String choice = in.nextLine();
             switch (choice) {
-                case "0":
-                    return;
                 case "1":
-                    return;
+                    if (task.getIdLead() == user.getId())
+                        return 1;
+                    else
+                        continue;
                 case "2":
-                    return;
+                    if (task.getIdLead() == user.getId())
+                        return 2;
+                    else
+                        continue;
+
                 case "3":
-                    return;
+                    if (task.getIdLead() == user.getId())
+                        return 3;
+                    else
+                        continue;
                 case "4":
-                    return;
+                    if (task.getIdLead() == user.getId())
+                        return 4;
+                    else
+                        continue;
                 case "5":
-                    return;
+                    if (task.getIdPerformer() == user.getId())
+                        return 5;
+                    else
+                        continue;
                 case "6":
-                    return;
+                    if (task.getIdLead() == user.getId())
+                        return 6;
+                    else
+                        continue;
+                case "7":
+                    return 7;
+                case "8":
+                    return 8;
 
                 default:
                     System.out.println("Ошибка, введите другие данные");
             }
+            System.out.println("Ошибка, доступ запрещен");
+
+
         }
 
     }
+
+    public static void changeNameTask(Task task){
+        if (task == null)
+            System.out.println("Ошибка, задача отсутствует");
+        System.out.println("Введите новое название для задачи");
+        Scanner in = new Scanner(System.in);
+        String str = in.nextLine();
+        task.setName(str);
+        task.updateTask();
+    }
+    public static void changeDescriptionTask(Task task){
+        if (task == null)
+            System.out.println("Ошибка, задача отсутствует");
+        System.out.println("Введите новое описание для задачи");
+        Scanner in = new Scanner(System.in);
+        String str = in.nextLine();
+        task.setDescription(str);
+        task.updateTask();
+    }
+    public static void changeLeadTask(Task task)// TODO сделать вывод пользователей
+    {
+        if (task == null)
+            System.out.println("Ошибка, задача отсутствует");
+        System.out.println("Введите нового руководителя для задачи");
+        Scanner in = new Scanner(System.in);
+        String str = in.nextLine();
+        int idLead = DbFunctions.getUser(str).getId();
+        task.setIdLead(idLead);
+        task.updateTask();
+    }
+    public static void changePerformerTask(Task task)// TODO сделать вывод пользователей
+    {
+        if (task == null)
+            System.out.println("Ошибка, задача отсутствует");
+        System.out.println("Введите нового исполнителя для задачи");
+        Scanner in = new Scanner(System.in);
+        String str = in.nextLine();
+        int idPerformer = DbFunctions.getUser(str).getId();
+        task.setIdPerformer(idPerformer);
+        task.updateTask();
+    }
+    public static void changeStatusTask(Task task)// TODO сделать вывод статусов
+    {
+        if (task == null)
+            System.out.println("Ошибка, задача отсутствует");
+        System.out.println("Введите новый статус для задачи");
+        Scanner in = new Scanner(System.in);
+        String str = in.nextLine();
+        task.setIdStatus(ChangeFormat.strToInt(str));
+        task.updateTask();
+    }
+    public static void deleteTask(Task task)// TODO сделать удаление задачи
+    {
+        if (task == null)
+            System.out.println("Ошибка, задача отсутствует");
+        System.out.println("Вы точно хотите удалить задачу?\n1 - Да, 2 - Нет");
+        Scanner in = new Scanner(System.in);
+        String str = in.nextLine();
+        if (ChangeFormat.strToInt(str) == 1){
+            // TODO удалить задачу
+        }
+
+    }
+
+
 
 //    public static User createNewUser() {//
 //        String name, role, lead, password;

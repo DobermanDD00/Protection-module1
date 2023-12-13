@@ -1,5 +1,6 @@
 package model.DbFunctions;
 
+import model.Task;
 import tools.ChangeFormat;
 
 import java.sql.*;
@@ -57,7 +58,7 @@ public class DbFunctions {
                     description varbinary(max),
                     idLead int,
                     idPerformer int,
-                    status int,
+                    idStatus int,
                     report varbinary(max),
                     signlead varbinary(32),
                     signperformer varbinary(32),
@@ -207,10 +208,26 @@ public class DbFunctions {
 
     public static void addNewTask(TaskDb taskDb) {
         String sqlQuery = "insert into TASKS\n" +
-                "(id, name, description, idLead, idPerformer, status, report, " +
+                "(id, name, description, idLead, idPerformer, idStatus, report, " +
                 "signlead, signperformer, passForLead, passForPerformer)\n" +
                 "VALUES (" + taskDb.getId() + "," + ChangeFormat.byteToHexStr(taskDb.getName()) + ", " + ChangeFormat.byteToHexStr(taskDb.getDescription()) + ", " + taskDb.getIdLead() + ", " + taskDb.getIdPerformer() + ", " + taskDb.getIdStatus() + ", " + ChangeFormat.byteToHexStr(taskDb.getReport())
                 + ", " + ChangeFormat.byteToHexStr(taskDb.getSignLead()) + ", " + ChangeFormat.byteToHexStr(taskDb.getSignPerformer()) + ", " + ChangeFormat.byteToHexStr(taskDb.getPassForLead()) + ", " + ChangeFormat.byteToHexStr(taskDb.getPassForPerformer()) + "  );";
+
+        updateDb(sqlQuery);
+    }
+    public static void updateTask(TaskDb taskDb) {
+        String sqlQuery = "update Tasks\n" +
+                "set NAME = " + ChangeFormat.byteToHexStr(taskDb.getName()) + ",\n" +
+                "    description = " + ChangeFormat.byteToHexStr(taskDb.getDescription()) + ",\n" +
+                "    idLead = " + taskDb.getIdLead() + ",\n" +
+                "    idPerformer = " + taskDb.getIdPerformer() + ",\n" +
+                "    idStatus = " + taskDb.getIdStatus() + ",\n" +
+                "    report = " + ChangeFormat.byteToHexStr(taskDb.getReport()) + ",\n" +
+                "    signLead = " + ChangeFormat.byteToHexStr(taskDb.getSignLead()) + ",\n" +
+                "    signPerformer = " + ChangeFormat.byteToHexStr(taskDb.getSignPerformer()) + ",\n" +
+                "    passForLead = " + ChangeFormat.byteToHexStr(taskDb.getPassForLead()) + ",\n" +
+                "    passForPerformer = " + ChangeFormat.byteToHexStr(taskDb.getPassForPerformer()) + "\n" +
+                "where ID = " + taskDb.getId() + ";";
 
         updateDb(sqlQuery);
     }
@@ -232,7 +249,7 @@ public class DbFunctions {
                         rs.getBytes("DESCRIPTION"),
                         rs.getInt("idLead"),
                         rs.getInt("idPerformer"),
-                        rs.getInt("status"),
+                        rs.getInt("idStatus"),
                         rs.getBytes("report"),
                         rs.getBytes("signLead"),
                         rs.getBytes("signPerformer"),
@@ -309,7 +326,7 @@ public class DbFunctions {
                         rs.getBytes("DESCRIPTION"),
                         rs.getInt("idLead"),
                         rs.getInt("idPerformer"),
-                        rs.getInt("status"),
+                        rs.getInt("idStatus"),
                         rs.getBytes("report"),
                         rs.getBytes("signLead"),
                         rs.getBytes("signPerformer"),

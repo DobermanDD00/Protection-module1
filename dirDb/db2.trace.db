@@ -11814,3 +11814,39 @@ java.sql.SQLClientInfoException: Client info name 'ApplicationName' not supporte
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
 	at java.base/java.lang.Thread.run(Thread.java:833)
+2023-12-12 23:40:06 jdbc[3]: exception
+java.sql.SQLClientInfoException: Client info name 'ApplicationName' not supported.
+	at org.h2.jdbc.JdbcConnection.setClientInfo(JdbcConnection.java:1573)
+	at com.intellij.database.remote.jdbc.impl.RemoteConnectionImpl.setClientInfo(RemoteConnectionImpl.java:470)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:197)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:712)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:587)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:828)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(TCPTransport.java:705)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:704)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+2023-12-13 02:54:14 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Синтаксическая ошибка в выражении SQL "update Tasks\000aset NAME = '[B@4426bff1',\000a    description = [*][B@3c7c886c,\000a    idLead = 1,\000a    idPerformer = 2,\000a    idStatus = 1,\000a    report = [B@55493582,\000a    signLead = [B@1a20270e,\000a    signPerformer = [B@6b88ca8c,\000a    passForLead = X'6F 65 72 73 64 6C',\000a    passForPerformer = X'73 68 6C 64'\000awhere ID = 10;"; ожидалось "DEFAULT, INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"
+Syntax error in SQL statement "update Tasks\000aset NAME = '[B@4426bff1',\000a    description = [*][B@3c7c886c,\000a    idLead = 1,\000a    idPerformer = 2,\000a    idStatus = 1,\000a    report = [B@55493582,\000a    signLead = [B@1a20270e,\000a    signPerformer = [B@6b88ca8c,\000a    passForLead = X'6F 65 72 73 64 6C',\000a    passForPerformer = X'73 68 6C 64'\000awhere ID = 10;"; expected "DEFAULT, INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+update Tasks
+set NAME = '[B@4426bff1',
+    description = [B@3c7c886c,
+    idLead = 1,
+    idPerformer = 2,
+    idStatus = 1,
+    report = [B@55493582,
+    signLead = [B@1a20270e,
+    signPerformer = [B@6b88ca8c,
+    passForLead = X'6F 65 72 73 64 6C',
+    passForPerformer = X'73 68 6C 64'
+where ID = 10; [42001-214]
